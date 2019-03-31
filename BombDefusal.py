@@ -59,18 +59,34 @@ class Bomb(object):
 #Abstract Module class. All sub-modules extend this.
 class Module(object):
 
-    def __init__(self, modNumber):
-        """This modNumber is the spot in the Bomb modules array that marks whether this module is complete or not."""
-        self._modNumber = modNumber
+    def __init__(self, modNumber, bomb):
+        #This modNumber is the spot in the Bomb modules array that marks whether this module is complete or not.
+        self.modNumber = modNumber
+        #This is a reference to the main bomb instance, the owner of this module
+        self.bomb = bomb
 
     @property
     def modNumber(self):
         return self._modNumber
 
+    @property
+    def bomb(self):
+        return self._bomb
+
     @modNumber.setter
     def modNumber(self, modNumber):
         self._modNumber = modNumber
 
+    @bomb.setter
+    def bomb(self, bomb):
+        self._bomb = bomb
+
     #add a strike to the main bomb instance
-    def strike(self, bomb):
-        bomb.strikes += 1
+    def strike(self):
+        self.bomb.strikes += 1
+
+    #let the bomb know that this module is complete
+    def moduleComplete(self):
+        self.bomb.moduleComplete(self.modNumber)
+
+bomb = Bomb(60)
