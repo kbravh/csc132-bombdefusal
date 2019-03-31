@@ -86,7 +86,37 @@ class Module(object):
         self.bomb.strikes += 1
 
     #let the bomb know that this module is complete
-    def moduleComplete(self):
+    def solve(self):
         self.bomb.moduleComplete(self.modNumber)
 
+
+##SAMPLE CODE##
+
+#This is our bomb, it has a timer of 60 seconds (though obviously there isn't a real timer yet)
 bomb = Bomb(60)
+
+#Here we create a cut the wires module (we give it a module number and tell it which bomb it's a part of)
+cutTheWires = Module(0, bomb)
+
+#then we can mess up and get a strike on it
+cutTheWires.strike()
+
+#we can see that we now have a strike
+print "You have {} strike(s).".format(bomb.strikes)
+
+#Let's create two more cut the wires modules
+cutTheWires2 = Module(1, bomb)
+cutTheWires3 = Module(2, bomb)
+
+#Let's see which modules are complete
+print "Here's the state of the modules: {}".format(bomb.modules)
+
+#we can solve the first module
+cutTheWires.solve()
+
+#let's check the state of the modules one more time
+print "Here's the state of the modules: {}".format(bomb.modules)
+
+#let's solve the other two modules
+cutTheWires2.solve()
+cutTheWires3.solve()
