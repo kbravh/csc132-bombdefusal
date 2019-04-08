@@ -74,9 +74,11 @@ class Bomb(object):
             segment.set_digit(2, 0)
             segment.set_digit(3, 0)
             segment.set_colon(True)
+            segment.write_display()
             time.sleep(0.5)
 
             segment.clear()
+            segment.write_display()
             time.sleep(0.5)
 
     def win(self):
