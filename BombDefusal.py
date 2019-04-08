@@ -4,6 +4,15 @@
 # Description: A real life implementation of KTANE   #
 #       (Keep Talking and Nobody Explodes)           #
 ######################################################
+import time
+import datetime
+
+from Adafruit_LED_Backpack import SevenSegment
+######################################################
+segment = SevenSegment.SevenSegment(address=0x70)
+
+# Initialize the display. Must be called once before using the display.
+segment.begin()
 
 #Base class for the bomb. This will handle all major game functions.
 class Bomb(object):
@@ -42,6 +51,12 @@ class Bomb(object):
         if self._modules == [1,1,1]:
             self.win()
 
+    def startBomb(self):
+        #stores the time that the bomb started 
+        self.startTime = datetime.datetime.now()
+        #start the game
+        playGame()
+
     def moduleComplete(self, modNumber):
         #pull a copy of the list of module states
         updatedModules = self.modules
@@ -51,10 +66,10 @@ class Bomb(object):
         self.modules = updatedModules
 
     def explode(self):
-        print "BOOM!"
+        print ("BOOM!")
 
     def win(self):
-        print "You win!"
+        print ("You win!")
 
 #Abstract Module class. All sub-modules extend this.
 class Module(object):
@@ -90,33 +105,65 @@ class Module(object):
         self.bomb.moduleComplete(self.modNumber)
 
 
-##SAMPLE CODE##
+def writeToClock(minutes, seconds, hundSecs):
+    segment.clear()    
 
-#This is our bomb, it has a timer of 60 seconds (though obviously there isn't a real timer yet)
+    # show minutes and seconds on the clock
+    if(minutes > 0):
+        #set minutes
+        segment.set_digit(0, int(minutes/10))
+        segment.set_digit(1, minutes%10)
+        #set seconds
+        segment.set_digit(2, int(seconds / 10))
+        segment.set_digit(3, seconds % 10)
+        pass
+    #show seconds and hundredths on the clock
+    else:
+        #set seconds
+        segment.set_digit(0, int(seconds/10))
+        segment.set_digit(1, seconds%10)
+        #set hundredths
+        segment.set_digit(2, int(hundSecs / 10))
+        segment.set_digit(3, hundSecs % 10)
+        pass
+
+    # Toggle colon
+    if(seconds > 10):
+        segment.set_colon(seconds % 2)              # Toggle colon every second
+    else:
+        segment.set_colon(hundSecs > 50)              # Toggle colon every half second
+
+    # Write the display buffer to the hardware.  This must be called to
+    # update the actual display LEDs.
+    segment.write_display()
+
+def playGame():
+    while(True):
+        #this is the time right now
+        currentTime = datetime.datetime.now()
+        #this is the total number of seconds that have gone by
+        timeDiff = (currentTime - bomb.startTime).total_seconds()
+        #this is the time left
+        timeLeft = bomb.timer - timeDiff
+        
+        if(timeLeft <= 0):
+            writeToClock(0,0,0)
+            bomb.explode()
+
+        else:
+            #split up the time left
+            minutes = int(timeLeft/60)
+            seconds = int(timeLeft/1)
+            #get just the microseconds, round to two places, strip off the 
+            #leading zero and the decimal point
+            hundSecs = str(round(timeLeft%1, 2))[2:4]
+            print("time left: {}:{}:{}".format(minutes, seconds, hundSecs))
+
+            writeToClock(minutes, seconds, hundSecs)
+
+            time.sleep(0.2)
+
+##SAMPLE CODE##
 bomb = Bomb(60)
 
-#Here we create a cut the wires module (we give it a module number and tell it which bomb it's a part of)
-cutTheWires = Module(0, bomb)
-
-#then we can mess up and get a strike on it
-cutTheWires.strike()
-
-#we can see that we now have a strike
-print "You have {} strike(s).".format(bomb.strikes)
-
-#Let's create two more cut the wires modules
-cutTheWires2 = Module(1, bomb)
-cutTheWires3 = Module(2, bomb)
-
-#Let's see which modules are complete
-print "Here's the state of the modules: {}".format(bomb.modules)
-
-#we can solve the first module
-cutTheWires.solve()
-
-#let's check the state of the modules one more time
-print "Here's the state of the modules: {}".format(bomb.modules)
-
-#let's solve the other two modules
-cutTheWires2.solve()
-cutTheWires3.solve()
+bomb.startBomb()
