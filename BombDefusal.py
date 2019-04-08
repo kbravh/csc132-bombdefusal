@@ -67,6 +67,17 @@ class Bomb(object):
 
     def explode(self):
         print ("BOOM!")
+        #flash the timer on and off
+        while(True):
+            segment.set_digit(0, 0)
+            segment.set_digit(1, 0)
+            segment.set_digit(2, 0)
+            segment.set_digit(3, 0)
+            segment.set_colon(True)
+            time.sleep(0.5)
+
+            segment.clear()
+            time.sleep(0.5)
 
     def win(self):
         print ("You win!")
@@ -129,9 +140,9 @@ def writeToClock(minutes, seconds, hundSecs):
 
     # Toggle colon
     if(seconds > 10):
-        segment.set_colon(seconds % 2)              # Toggle colon every second
+        segment.set_colon(seconds % 2)          # Toggle colon every second
     else:
-        segment.set_colon(int(hundSecs) > 50)              # Toggle colon every half second
+        segment.set_colon(int(hundSecs) > 50)   # Toggle colon every half second
 
     # Write the display buffer to the hardware.  This must be called to
     # update the actual display LEDs.
@@ -161,9 +172,9 @@ def playGame():
 
             writeToClock(minutes, seconds, hundSecs)
 
-            time.sleep(0.2)
+            time.sleep(0.05)
 
 ##SAMPLE CODE##
-bomb = Bomb(60)
+bomb = Bomb(15)
 
 bomb.startBomb()
