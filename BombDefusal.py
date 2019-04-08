@@ -123,8 +123,8 @@ def writeToClock(minutes, seconds, hundSecs):
         segment.set_digit(0, int(seconds/10))
         segment.set_digit(1, seconds%10)
         #set hundredths
-        segment.set_digit(2, int(hundSecs / 10))
-        segment.set_digit(3, hundSecs % 10)
+        segment.set_digit(2, int(int(hundSecs) / 10))
+        segment.set_digit(3, int(hundSecs) % 10)
         pass
 
     # Toggle colon
