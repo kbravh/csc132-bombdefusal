@@ -131,7 +131,7 @@ def writeToClock(minutes, seconds, hundSecs):
     if(seconds > 10):
         segment.set_colon(seconds % 2)              # Toggle colon every second
     else:
-        segment.set_colon(hundSecs > 50)              # Toggle colon every half second
+        segment.set_colon(int(hundSecs) > 50)              # Toggle colon every half second
 
     # Write the display buffer to the hardware.  This must be called to
     # update the actual display LEDs.
