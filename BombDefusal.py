@@ -143,6 +143,27 @@ class Module(object):
     def checkModule(self):
         """This determines the solved state of a module"""
 
+class CutTheWires(Module):
+    def __init__(self):
+        Module.__init__(self)
+
+    def checkModule(self):
+        pass
+
+class Keypad(Module):
+    def __init__(self):
+        Module.__init__(self)
+
+    def checkModule(self):
+        pass
+
+class BigButton(Module):
+    def __init__(self):
+        Module.__init__(self)
+
+    def checkModule(self):
+        pass
+
 ###################
 ###OTHER METHODS###
 ###################
