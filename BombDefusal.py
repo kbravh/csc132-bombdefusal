@@ -107,7 +107,7 @@ class Bomb(object):
 class Module(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, modNumber, bomb):
+    def __init__(self, modNumber):
         #This modNumber is the spot in the Bomb modules array that marks whether this module is complete or not.
         self.modNumber = modNumber
         #This is a reference to the main bomb instance, the owner of this module
@@ -144,22 +144,22 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, modNumber):
+        Module.__init__(self, modNumber)
 
     def checkModule(self):
         pass
 
 class Keypad(Module):
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, modNumber):
+        Module.__init__(self, modNumber)
 
     def checkModule(self):
         pass
 
 class BigButton(Module):
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, modNumber):
+        Module.__init__(self, modNumber)
 
     def checkModule(self):
         pass
@@ -209,9 +209,9 @@ def gameSetup():
     global bomb
     global module1, module2, module3
     bomb = Bomb(15)
-    module1 = Module(1, bomb)
-    module2 = Module(2, bomb)
-    module3 = Module(3, bomb)
+    module1 = CutTheWires(1)
+    module2 = Keypad(2)
+    module3 = BigButton(3)
 
 #runs the gameplay
 #this is triggered by the "Start" button
