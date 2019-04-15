@@ -11,11 +11,23 @@ raspberryPi = False
 import time
 import datetime
 import abc
+import RPi.GPIO as GPIO
 
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
 
+wire1 = 1
+wire2 = 2
+wire3 = 3
+
 if raspberryPi:
+    # use the broadcom pin layout
+    GPIO.setmode(GPIO.BCM) 
+    #set wire pins to pulldown inputs
+    GPIO.setup(wire1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wire2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wire3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
     segment = SevenSegment.SevenSegment(address=0x70)
 
     # Initialize the display. Must be called once before using the display.
@@ -146,9 +158,20 @@ class Module(object):
 class CutTheWires(Module):
     def __init__(self, modNumber):
         Module.__init__(self, modNumber)
+        #whether or not each wire needs to be checked
+        self.wires = [1,1,1]
 
     def checkModule(self):
-        pass
+        if(GPIO.input(wire1)==GPIO.LOW and self.wires[0]):
+            self.solve()
+            self.wires[0] = 0
+        if(GPIO.input(wire2)==GPIO.LOW and self.wires[1]):
+            self.strike()
+            self.wires[1] = 0
+        if(GPIO.input(wire3)==GPIO.LOW and self.wires[2]):
+            self.strike()
+            self.wires[2] = 0
+        
 
 class Keypad(Module):
     def __init__(self, modNumber):
@@ -244,6 +267,7 @@ def playGame():
 
         ###MODULES###
         #check the state of each module
+        module1.checkModule()
 
         time.sleep(0.05)
 
