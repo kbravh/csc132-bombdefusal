@@ -21,9 +21,9 @@ wirePin2 = 8
 wirePin3 = 9
 
 #create 3 basic wires for default mission setting
-wire1 = {'pin': wirePin1, 'cut': True}
-wire2 = {'pin': wirePin2, 'cut': False}
-wire3 = {'pin': wirePin3, 'cut': False}
+wire1 = {'pin': wirePin1}
+wire2 = {'pin': wirePin2}
+wire3 = {'pin': wirePin3}
 
 #the basic wire setup for Cut The Wires
 defaultWireConfig = {
@@ -32,6 +32,13 @@ defaultWireConfig = {
     'wire3' : wire3,
     'wiresToSolve' : [wire1],
     'wiresToLeave' : [wire2, wire3]
+}
+secondWireConfig = {
+    'wire1' : wire1,
+    'wire2' : wire2,
+    'wire3' : wire3,
+    'wiresToSolve' : [wire2, wire3],
+    'wiresToLeave' : [wire1]
 }
 
 if raspberryPi:
