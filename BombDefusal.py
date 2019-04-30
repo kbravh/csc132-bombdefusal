@@ -90,6 +90,12 @@ class Bomb(object):
 
     @strikes.setter
     def strikes(self, strikes):
+        #change time allotted depending on # of strikes
+        if (self._strikes = 1):
+            self._timer = self._timer - 5
+        elif (self._strikes = 2):
+            self._timer = self._timer - 10
+        
         self._strikes = strikes
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
@@ -270,7 +276,7 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
-    bomb = Bomb(15)
+    bomb = Bomb(120)
     module1 = CutTheWires(1)
     module2 = Keypad(2)
     module3 = BigButton(3)
@@ -295,6 +301,7 @@ def playGame():
         else:
             #split up the time left
             minutes = int(timeLeft/60)
+            timeLeft -= minutes*60
             seconds = int(timeLeft/1)
             #get just the microseconds, round to two places, strip off the 
             #leading zero and the decimal point
