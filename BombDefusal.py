@@ -16,6 +16,20 @@ from tkinter import *
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
 
+class mainGUI(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent, bg="white")
+        parent.attributes("-fullscreen", True)
+        self.setupGUI()
+
+    def setupGUI(self):
+        pass
+
+###Set up the GUI###
+bombWindow = Tk()
+bombWindow.title("Keep Talking and Nobody Explodes!")
+p = mainGUI(bombWindow)
+
 if raspberryPi:
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -218,6 +232,9 @@ def gameSetup():
 #this is triggered by the "Start" button
 def playGame():
     while(True):
+        window.update_idletasks()
+        window.update()
+
         ###TIMER###
         #this is the time right now
         currentTime = datetime.datetime.now()
