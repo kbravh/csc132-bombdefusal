@@ -16,9 +16,9 @@ import RPi.GPIO as GPIO
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
 #the pins used for the Cut The Wires module
-wirePin1 = 7
-wirePin2 = 8
-wirePin3 = 9
+wirePin1 = 4
+wirePin2 = 5
+wirePin3 = 6
 
 #create 3 basic wires for default mission setting
 wire1 = {'pin': wirePin1}
@@ -43,11 +43,11 @@ secondWireConfig = {
 
 if raspberryPi:
     # use the broadcom pin layout
-    RPi.GPIO.setmode(RPi.GPIO.BCM) 
+    GPIO.setmode(GPIO.BCM) 
     #set wire pins to pulldown inputs
-    RPi.GPIO.setup(wirePin1, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
-    RPi.GPIO.setup(wirePin2, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
-    RPi.GPIO.setup(wirePin3, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
+    GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -190,7 +190,7 @@ class CutTheWires(Module):
         ##BAD WIRES##
         for wire in self.wiresToLeave:
             # see if the wire is connected
-                wireState = RPi.GPIO.input(wire['pin'])
+                wireState = GPIO.input(wire['pin'])
                 #if the wire has been cut
                 if wireState == False:
                     # remove this wire from the list of wires to check
@@ -202,7 +202,7 @@ class CutTheWires(Module):
         # check each wire that needs to be solved
         for wire in self.wiresToSolve:
             # see if the wire is connected
-            wireState = RPi.GPIO.input(wire['pin'])
+            wireState = GPIO.input(wire['pin'])
             #if the wire has been cut
             if wireState == False:
                 # remove this wire from the list of wires to check
