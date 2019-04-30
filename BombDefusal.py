@@ -11,11 +11,44 @@ raspberryPi = False
 import time
 import datetime
 import abc
+import RPi.GPIO as GPIO
 
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
+#the pins used for the Cut The Wires module
+wirePin1 = 7
+wirePin2 = 8
+wirePin3 = 9
+
+#create 3 basic wires for default mission setting
+wire1 = {'pin': wirePin1}
+wire2 = {'pin': wirePin2}
+wire3 = {'pin': wirePin3}
+
+#the basic wire setup for Cut The Wires
+defaultWireConfig = {
+    'wire1' : wire1,
+    'wire2' : wire2,
+    'wire3' : wire3,
+    'wiresToSolve' : [wire1],
+    'wiresToLeave' : [wire2, wire3]
+}
+secondWireConfig = {
+    'wire1' : wire1,
+    'wire2' : wire2,
+    'wire3' : wire3,
+    'wiresToSolve' : [wire2, wire3],
+    'wiresToLeave' : [wire1]
+}
 
 if raspberryPi:
+    # use the broadcom pin layout
+    RPi.GPIO.setmode(RPi.GPIO.BCM) 
+    #set wire pins to pulldown inputs
+    RPi.GPIO.setup(wirePin1, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
+    RPi.GPIO.setup(wirePin2, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
+    RPi.GPIO.setup(wirePin3, RPi.GPIO.IN, pull_up_down = RPi.GPIO.PUD_DOWN)
+
     segment = SevenSegment.SevenSegment(address=0x70)
 
     # Initialize the display. Must be called once before using the display.
@@ -144,11 +177,40 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, wireConfig = defaultWireConfig):
         Module.__init__(self, modNumber)
+        self.wire1 = wireConfig['wire1']
+        self.wire2 = wireConfig['wire2']
+        self.wire3 = wireConfig['wire3']
+        self.wiresToSolve = wireConfig['wiresToSolve']
+        self.wiresToLeave = wireConfig['wiresToLeave']
+
 
     def checkModule(self):
-        pass
+        ##BAD WIRES##
+        for wire in self.wiresToLeave:
+            # see if the wire is connected
+                wireState = RPi.GPIO.input(wire['pin'])
+                #if the wire has been cut
+                if wireState == False:
+                    # remove this wire from the list of wires to check
+                    self.wiresToLeave.remove(wire)
+                    #give a strike for cutting a bad wire
+                    self.strike()
+
+        ##GOOD WIRES##
+        # check each wire that needs to be solved
+        for wire in self.wiresToSolve:
+            # see if the wire is connected
+            wireState = RPi.GPIO.input(wire['pin'])
+            #if the wire has been cut
+            if wireState == False:
+                # remove this wire from the list of wires to check
+                self.wiresToSolve.remove(wire)
+
+        # if all necessary wires have been cut, solve the module
+        if self.wiresToSolve == []:
+            self.solve()
 
 class Keypad(Module):
     def __init__(self, modNumber):
@@ -244,6 +306,7 @@ def playGame():
 
         ###MODULES###
         #check the state of each module
+        module1.checkModule()
 
         time.sleep(0.05)
 
