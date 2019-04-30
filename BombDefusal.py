@@ -11,7 +11,7 @@ raspberryPi = False
 import time
 import datetime
 import abc
-import RPi.GPIO
+import RPi.GPIO as GPIO
 
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
