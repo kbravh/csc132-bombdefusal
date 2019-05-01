@@ -90,13 +90,14 @@ class Bomb(object):
 
     @strikes.setter
     def strikes(self, strikes):
-        #change time allotted depending on # of strikes
-        if (self._strikes = 1):
-            self._timer = self._timer - 5
-        elif (self._strikes = 2):
-            self._timer = self._timer - 10
-        
         self._strikes = strikes
+
+        #change time allotted depending on # of strikes
+        if (self.strikes == 1):
+            self.timer = self.timer - 5
+        elif (self.strikes == 2):
+            self.timer = self.timer - 10
+        
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
             self.explode()
