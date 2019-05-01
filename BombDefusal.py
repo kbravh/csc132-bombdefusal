@@ -165,10 +165,12 @@ class Module(object):
     #add a strike to the main bomb instance
     def strike(self):
         self.bomb.strikes += 1
+        print("got a strike!")
 
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
+        print("module solved!")
 
     #abstract method to determine if a module is complete
     #each module type will need to define this
