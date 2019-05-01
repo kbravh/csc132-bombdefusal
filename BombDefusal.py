@@ -93,10 +93,10 @@ class Bomb(object):
         self._strikes = strikes
 
         #change time allotted depending on # of strikes
-        if (self.strikes == 1):
-            self.timer = self.timer - 5
-        elif (self.strikes == 2):
-            self.timer = self.timer - 10
+        #if (self.strikes == 1):
+           # self.timer = self.timer - 5
+        #elif (self.strikes == 2):
+            #self.timer = self.timer - 10
         
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
@@ -330,6 +330,12 @@ def splitTimeLeft(timeLeft):
 #this is triggered by the "Start" button
 def playGame():
     while(True):
+        ###STRIKE SPEEDING UP TIMER###
+        if (self.strikes == 1):
+            self.timer = self.timer - 0.05
+        elif (self.strikes == 2):
+            self.timer = self.timer - 0.10
+        
         ###TIMER###
         timeLeft = getTimeLeft()
         #split up the time left
