@@ -326,7 +326,7 @@ def playGame():
     while(True):
         ###STRIKE SPEEDING UP TIMER###
         if (bomb.strikes == 1):
-            bomb.timer = bomb.timer - 0.05
+            bomb.timer = bomb.timer - 0.025
         elif (bomb.strikes == 2):
             bomb.timer = bomb.timer - 0.05
         
