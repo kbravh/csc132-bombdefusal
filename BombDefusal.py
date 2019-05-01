@@ -8,11 +8,17 @@
     will disable the Pi specific functionality for testing"""
 raspberryPi = False
 
+#Abstraction
+import abc
+#GPIO
+import RPi.GPIO as GPIO
+#Keypad
+import digitalio
+import board
+import adafruit_matrixkeypad
+#Timer
 import time
 import datetime
-import abc
-import RPi.GPIO as GPIO
-
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
 #the pins used for the Cut The Wires module
@@ -40,6 +46,16 @@ secondWireConfig = {
     'wiresToSolve' : [wire2, wire3],
     'wiresToLeave' : [wire1]
 }
+
+#Setup for the keypad
+cols = [digitalio.DigitalInOut(x) for x in (board.D9, board.D6, board.D5)]
+rows = [digitalio.DigitalInOut(x) for x in (board.D13, board.D12, board.D11, board.D10)]
+keys = ((1, 2, 3),
+        (4, 5, 6),
+        (7, 8, 9),
+        ('*', 0, '#'))
+
+keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
 
 if raspberryPi:
     # use the broadcom pin layout
