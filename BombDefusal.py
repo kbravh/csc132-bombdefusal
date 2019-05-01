@@ -70,7 +70,7 @@ class Bomb(object):
     def __init__(self, timer=60):
         self.timer = timer
         self.strikes = 0
-        self.modules = [0,0,0]
+        self.modules = [0,1,1]
 
     @property
     def timer(self):
@@ -98,8 +98,10 @@ class Bomb(object):
     @modules.setter
     def modules(self, modules):
         self._modules = modules
+        print("checking modules")
+        print(self.modules)
         #if all the modules are solved, finish the game
-        if self._modules == [1,1,1]:
+        if self.modules == [1,1,1]:
             self.win()
 
     def startBomb(self):
@@ -119,6 +121,7 @@ class Bomb(object):
     def explode(self):
         print ("BOOM!")
         while(True):
+            #TODO - Add tkinter updates here so that restart button works
             if raspberryPi:
             #flash the timer on and off
                 segment.set_digit(0, 0)
@@ -135,6 +138,21 @@ class Bomb(object):
 
     def win(self):
         print ("You win!")
+        #get the time left when module solved and split it
+        timeLeft = getTimeLeft()
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+
+        while(True):
+            #TODO - Add tkinter updates here so that restart button works
+            if raspberryPi:
+
+                #flash the timer on and off with winning time
+                writeToClock(minutes, seconds, hundSecs)
+                time.sleep(0.5)
+
+                segment.clear()
+                segment.write_display()
+                time.sleep(0.5)
 
 #Abstract Module class. All sub-modules extend this.
 class Module(object):
@@ -278,35 +296,44 @@ def gameSetup():
     global bomb
     global module1, module2, module3
     bomb = Bomb(120)
-    module1 = CutTheWires(1)
-    module2 = Keypad(2)
-    module3 = BigButton(3)
+    module1 = CutTheWires(0)
+    module2 = Keypad(1)
+    module3 = BigButton(2)
+
+def getTimeLeft():
+    #this is the time right now
+    currentTime = datetime.datetime.now()
+    #this is the total number of seconds that have gone by
+    timeDiff = (currentTime - bomb.startTime).total_seconds()
+    #this is the time left
+    timeLeft = bomb.timer - timeDiff
+    return timeLeft
+
+def splitTimeLeft(timeLeft):
+    #split up the time left
+    minutes = int(timeLeft/60)
+    timeLeft -= minutes*60
+    seconds = int(timeLeft/1)
+    #get just the microseconds, round to two places, strip off the 
+    #leading zero and the decimal point
+    hundSecs = str(round(timeLeft%1, 2))[2:4]
+    return minutes, seconds, hundSecs
 
 #runs the gameplay
 #this is triggered by the "Start" button
 def playGame():
     while(True):
         ###TIMER###
-        #this is the time right now
-        currentTime = datetime.datetime.now()
-        #this is the total number of seconds that have gone by
-        timeDiff = (currentTime - bomb.startTime).total_seconds()
-        #this is the time left
-        timeLeft = bomb.timer - timeDiff
-        
+        timeLeft = getTimeLeft()
+        #split up the time left
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+
         if(timeLeft <= 0):
             if raspberryPi:
                 writeToClock(0,0,0)
             bomb.explode()
 
         else:
-            #split up the time left
-            minutes = int(timeLeft/60)
-            timeLeft -= minutes*60
-            seconds = int(timeLeft/1)
-            #get just the microseconds, round to two places, strip off the 
-            #leading zero and the decimal point
-            hundSecs = str(round(timeLeft%1, 2))[2:4]
             print("time left: {}:{}:{}".format(minutes, seconds, hundSecs))
 
             if raspberryPi:
