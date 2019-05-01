@@ -12,9 +12,35 @@ import time
 import datetime
 import abc
 from tkinter import *
+import RPi.GPIO as GPIO
 
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
+#the pins used for the Cut The Wires module
+wirePin1 = 4
+wirePin2 = 5
+wirePin3 = 6
+
+#create 3 basic wires for default mission setting
+wire1 = {'pin': wirePin1}
+wire2 = {'pin': wirePin2}
+wire3 = {'pin': wirePin3}
+
+#the basic wire setup for Cut The Wires
+defaultWireConfig = {
+    'wire1' : wire1,
+    'wire2' : wire2,
+    'wire3' : wire3,
+    'wiresToSolve' : [wire1],
+    'wiresToLeave' : [wire2, wire3]
+}
+secondWireConfig = {
+    'wire1' : wire1,
+    'wire2' : wire2,
+    'wire3' : wire3,
+    'wiresToSolve' : [wire2, wire3],
+    'wiresToLeave' : [wire1]
+}
 
 class mainGUI(Frame):
     def __init__(self, parent):
@@ -31,6 +57,13 @@ bombWindow.title("Keep Talking and Nobody Explodes!")
 p = mainGUI(bombWindow)
 
 if raspberryPi:
+    # use the broadcom pin layout
+    GPIO.setmode(GPIO.BCM) 
+    #set wire pins to pulldown inputs
+    GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
     segment = SevenSegment.SevenSegment(address=0x70)
 
     # Initialize the display. Must be called once before using the display.
@@ -52,7 +85,7 @@ class Bomb(object):
     def __init__(self, timer=60):
         self.timer = timer
         self.strikes = 0
-        self.modules = [0,0,0]
+        self.modules = [0,1,1]
 
     @property
     def timer(self):
@@ -73,6 +106,13 @@ class Bomb(object):
     @strikes.setter
     def strikes(self, strikes):
         self._strikes = strikes
+
+        #change time allotted depending on # of strikes
+        if (self.strikes == 1):
+            self.timer = self.timer - 5
+        elif (self.strikes == 2):
+            self.timer = self.timer - 10
+        
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
             self.explode()
@@ -80,8 +120,10 @@ class Bomb(object):
     @modules.setter
     def modules(self, modules):
         self._modules = modules
+        print("checking modules")
+        print(self.modules)
         #if all the modules are solved, finish the game
-        if self._modules == [1,1,1]:
+        if self.modules == [1,1,1]:
             self.win()
 
     def startBomb(self):
@@ -101,6 +143,7 @@ class Bomb(object):
     def explode(self):
         print ("BOOM!")
         while(True):
+            #TODO - Add tkinter updates here so that restart button works
             if raspberryPi:
             #flash the timer on and off
                 segment.set_digit(0, 0)
@@ -117,6 +160,21 @@ class Bomb(object):
 
     def win(self):
         print ("You win!")
+        #get the time left when module solved and split it
+        timeLeft = getTimeLeft()
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+
+        while(True):
+            #TODO - Add tkinter updates here so that restart button works
+            if raspberryPi:
+
+                #flash the timer on and off with winning time
+                writeToClock(minutes, seconds, hundSecs)
+                time.sleep(0.5)
+
+                segment.clear()
+                segment.write_display()
+                time.sleep(0.5)
 
 #Abstract Module class. All sub-modules extend this.
 class Module(object):
@@ -127,6 +185,8 @@ class Module(object):
         self.modNumber = modNumber
         #This is a reference to the main bomb instance, the owner of this module
         self.bomb = bomb
+        #whether or not the module is solved
+        self.solved = False
 
     @property
     def modNumber(self):
@@ -160,11 +220,42 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, wireConfig = defaultWireConfig):
         Module.__init__(self, modNumber)
+        self.wire1 = wireConfig['wire1']
+        self.wire2 = wireConfig['wire2']
+        self.wire3 = wireConfig['wire3']
+        self.wiresToSolve = wireConfig['wiresToSolve']
+        self.wiresToLeave = wireConfig['wiresToLeave']
+
 
     def checkModule(self):
-        pass
+        ##BAD WIRES##
+        for wire in self.wiresToLeave:
+            # see if the wire is connected
+                wireState = GPIO.input(wire['pin'])
+                #if the wire has been cut
+                if wireState == False:
+                    # remove this wire from the list of wires to check
+                    self.wiresToLeave.remove(wire)
+                    #give a strike for cutting a bad wire
+                    self.strike()
+
+        ##GOOD WIRES##
+        # check each wire that needs to be solved
+        for wire in self.wiresToSolve:
+            # see if the wire is connected
+            wireState = GPIO.input(wire['pin'])
+            #if the wire has been cut
+            if wireState == False:
+                # remove this wire from the list of wires to check
+                self.wiresToSolve.remove(wire)
+
+        #if module is unsolved
+        if(not self.solved):
+            # if all necessary wires have been cut, solve the module
+            if self.wiresToSolve == []:
+                self.solve()
 
 class Keypad(Module):
     def __init__(self, modNumber):
@@ -224,10 +315,29 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
-    bomb = Bomb(15)
-    module1 = CutTheWires(1)
-    module2 = Keypad(2)
-    module3 = BigButton(3)
+    bomb = Bomb(120)
+    module1 = CutTheWires(0)
+    module2 = Keypad(1)
+    module3 = BigButton(2)
+
+def getTimeLeft():
+    #this is the time right now
+    currentTime = datetime.datetime.now()
+    #this is the total number of seconds that have gone by
+    timeDiff = (currentTime - bomb.startTime).total_seconds()
+    #this is the time left
+    timeLeft = bomb.timer - timeDiff
+    return timeLeft
+
+def splitTimeLeft(timeLeft):
+    #split up the time left
+    minutes = int(timeLeft/60)
+    timeLeft -= minutes*60
+    seconds = int(timeLeft/1)
+    #get just the microseconds, round to two places, strip off the 
+    #leading zero and the decimal point
+    hundSecs = str(round(timeLeft%1, 2))[2:4]
+    return minutes, seconds, hundSecs
 
 #runs the gameplay
 #this is triggered by the "Start" button
@@ -237,25 +347,16 @@ def playGame():
         bombWindow.update()
 
         ###TIMER###
-        #this is the time right now
-        currentTime = datetime.datetime.now()
-        #this is the total number of seconds that have gone by
-        timeDiff = (currentTime - bomb.startTime).total_seconds()
-        #this is the time left
-        timeLeft = bomb.timer - timeDiff
-        
+        timeLeft = getTimeLeft()
+        #split up the time left
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+
         if(timeLeft <= 0):
             if raspberryPi:
                 writeToClock(0,0,0)
             bomb.explode()
 
         else:
-            #split up the time left
-            minutes = int(timeLeft/60)
-            seconds = int(timeLeft/1)
-            #get just the microseconds, round to two places, strip off the 
-            #leading zero and the decimal point
-            hundSecs = str(round(timeLeft%1, 2))[2:4]
             print("time left: {}:{}:{}".format(minutes, seconds, hundSecs))
 
             if raspberryPi:
@@ -263,6 +364,7 @@ def playGame():
 
         ###MODULES###
         #check the state of each module
+        module1.checkModule()
 
         time.sleep(0.05)
 
