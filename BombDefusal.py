@@ -172,7 +172,7 @@ class Module(object):
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
-        self.solvedState = True
+        self.solved = True
         print("module solved!")
 
     #abstract method to determine if a module is complete
