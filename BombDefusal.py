@@ -57,6 +57,13 @@ keys = ((1, 2, 3),
 
 keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
 
+#basic object for keypad module
+defaultKeypadConfig = {
+    'word' : "HELLO",
+    "hint" : "YORE",
+    'sequence' : "43556"
+}
+
 if raspberryPi:
     # use the broadcom pin layout
     GPIO.setmode(GPIO.BCM) 
@@ -261,11 +268,34 @@ class CutTheWires(Module):
                 self.solve()
 
 class Keypad(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
         Module.__init__(self, modNumber)
+        self.word = keypadConfig.word
+        self.hint = keypadConfig.hint
+        self.sequence = keypadConfig.sequence
+        self.typedNumbers = ""
 
     def checkModule(self):
-        pass
+        #all keypresses after module is solved will be ignored
+        if (not self.solved):
+            #pulled the currently pressed keys from the keypad
+            #this is an array
+            keys = keypad.pressed_keys
+            print(keys)
+            if(keys):
+                #store the number pressed
+                self.typedNumbers += keys[0]
+
+                #if the typed numbers is the max (5)
+                if(len(self.typedNumbers) >= 5):
+                    #check if typed numbers matches sequence
+                    if(self.typedNumbers == self.sequence):
+                        self.solve()
+                    else:
+                        #reset the typed numbers array
+                        self.typedNumbers = ""
+                        self.strike()
+
 
 class BigButton(Module):
     def __init__(self, modNumber):
