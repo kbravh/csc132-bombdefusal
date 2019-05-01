@@ -151,6 +151,8 @@ class Module(object):
         self.modNumber = modNumber
         #This is a reference to the main bomb instance, the owner of this module
         self.bomb = bomb
+        #whether or not the module is solved
+        self.solved = False
 
     @property
     def modNumber(self):
@@ -171,10 +173,13 @@ class Module(object):
     #add a strike to the main bomb instance
     def strike(self):
         self.bomb.strikes += 1
+        print("got a strike!")
 
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
+        self.solved = True
+        print("module solved!")
 
     #abstract method to determine if a module is complete
     #each module type will need to define this
@@ -214,9 +219,11 @@ class CutTheWires(Module):
                 # remove this wire from the list of wires to check
                 self.wiresToSolve.remove(wire)
 
-        # if all necessary wires have been cut, solve the module
-        if self.wiresToSolve == []:
-            self.solve()
+        #if module is unsolved
+        if(not self.solved):
+            # if all necessary wires have been cut, solve the module
+            if self.wiresToSolve == []:
+                self.solve()
 
 class Keypad(Module):
     def __init__(self, modNumber):
