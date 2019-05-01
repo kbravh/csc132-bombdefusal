@@ -147,11 +147,12 @@ class Module(object):
     #add a strike to the main bomb instance
     def strike(self):
         self.bomb.strikes += 1
+        print("Got a strike!")
 
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
-
+        print("Module solved!")
     #abstract method to determine if a module is complete
     #each module type will need to define this
     @abc.abstractmethod
@@ -232,8 +233,8 @@ def gameSetup():
 #this is triggered by the "Start" button
 def playGame():
     while(True):
-        window.update_idletasks()
-        window.update()
+        bombWindow.update_idletasks()
+        bombWindow.update()
 
         ###TIMER###
         #this is the time right now
