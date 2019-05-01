@@ -85,7 +85,7 @@ class Bomb(object):
     def __init__(self, timer=60):
         self.timer = timer
         self.strikes = 0
-        self.modules = [0,1,1]
+        self.modules = [0,0,0]
 
     @property
     def timer(self):
