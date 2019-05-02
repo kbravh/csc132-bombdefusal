@@ -9,6 +9,7 @@ Manual pages for the Expert are in the /manual directory.
 
 ## Getting started
 In order to run the program, some dependencies will need to be installed.
+
 ### For the 7-segment display
 `sudo apt-get update`
 
@@ -23,3 +24,6 @@ In order to run the program, some dependencies will need to be installed.
 ### For the keypad
 `sudo pip3 install adafruit-circuitpython-matrixkeypad`
 
+## Note: In order to run the program on a computer for testing, make the following changes:
+* Copy the folder RPi from the project dependencies directory to your Python installation directory.
+* Change line 80 of `board.py` in site_packages to `pass`
