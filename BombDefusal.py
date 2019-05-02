@@ -275,17 +275,25 @@ class Keypad(Module):
         self.hint = keypadConfig["hint"]
         self.sequence = keypadConfig["sequence"]
         self.typedNumbers = ""
+        self.lastPressed = None
 
     def checkModule(self):
-        #all keypresses after module is solved will be ignored
-        if (raspberryPi and not self.solved):
-            #pulled the currently pressed keys from the keypad
-            #this is an array
+        #this is the time gone by since last keypad read
+        timeDiff = (datetime.datetime.now() - self.lastPressed).total_seconds()
+
+        #ignore keypresses if module is solved and debounce 3/4 second
+        if (raspberryPi and not self.solved and timeDiff > .75):
+            #pull the currently pressed keys from the keypad (array)
             keys = keypad.pressed_keys
-            print("Keys pressed: {}".format(keys))
+
+            #record the time the last keypress was recorded
+            self.lastPressed = datetime.datetime.now()
+
             if(keys):
+                print("Keys pressed: {}".format(keys))
                 #store the number pressed
-                self.typedNumbers += keys[0]
+                self.typedNumbers += str(keys[0])
+                print("Current sequence: {}".format(self.typedNumbers))
 
                 #if the typed numbers is the max (5)
                 if(len(self.typedNumbers) >= 5):
