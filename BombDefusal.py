@@ -282,7 +282,7 @@ class Keypad(Module):
         keypadTimeDiff = (datetime.datetime.now() - self.lastPressed).total_seconds()
 
         #ignore keypresses if module is solved and debounce 3/4 second
-        if (raspberryPi and not self.solved and keypadTimeDiff > .75):
+        if (raspberryPi and not self.solved and keypadTimeDiff > .15):
             #pull the currently pressed keys from the keypad (array)
             keys = keypad.pressed_keys
 
