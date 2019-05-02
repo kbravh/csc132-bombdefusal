@@ -280,18 +280,16 @@ class Keypad(Module):
     def checkModule(self):
         #this is the time gone by since last keypad read
         keypadTimeDiff = (datetime.datetime.now() - self.lastPressed).total_seconds()
-        print("Current time: {}, lastPressed: {}".format(datetime.datetime.now(),self.lastPressed))
-        print("keypadTimeDiff: {}".format(keypadTimeDiff))
 
         #ignore keypresses if module is solved and debounce 3/4 second
         if (raspberryPi and not self.solved and keypadTimeDiff > .75):
             #pull the currently pressed keys from the keypad (array)
             keys = keypad.pressed_keys
 
-            #record the time the last keypress was recorded
-            self.lastPressed = datetime.datetime.now()
-
             if(keys):
+                #record the time the last keypress was recorded
+                self.lastPressed = datetime.datetime.now()
+
                 print("Keys pressed: {}".format(keys))
                 #store the number pressed
                 self.typedNumbers += str(keys[0])
