@@ -396,6 +396,7 @@ def playGame():
         ###MODULES###
         #check the state of each module
         module1.checkModule()
+        module2.checkModule()
 
         time.sleep(0.05)
 
