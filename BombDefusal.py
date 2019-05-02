@@ -275,7 +275,7 @@ class Keypad(Module):
         self.hint = keypadConfig["hint"]
         self.sequence = keypadConfig["sequence"]
         self.typedNumbers = ""
-        self.lastPressed = None
+        self.lastPressed = datetime.datetime.now()
 
     def checkModule(self):
         #this is the time gone by since last keypad read
