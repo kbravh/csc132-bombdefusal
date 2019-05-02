@@ -271,9 +271,9 @@ class CutTheWires(Module):
 class Keypad(Module):
     def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
         Module.__init__(self, modNumber)
-        self.word = keypadConfig.word
-        self.hint = keypadConfig.hint
-        self.sequence = keypadConfig.sequence
+        self.word = keypadConfig["word"]
+        self.hint = keypadConfig["hint"]
+        self.sequence = keypadConfig["sequence"]
         self.typedNumbers = ""
 
     def checkModule(self):
