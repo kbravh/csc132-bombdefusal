@@ -8,11 +8,17 @@
     will disable the Pi specific functionality for testing"""
 raspberryPi = False
 
+#Abstraction
+import abc
+#GPIO
+import RPi.GPIO as GPIO
+#Keypad
+import digitalio
+import board
+import adafruit_matrixkeypad
+#Timer
 import time
 import datetime
-import abc
-import RPi.GPIO as GPIO
-
 from Adafruit_LED_Backpack import SevenSegment
 ######################################################
 #the pins used for the Cut The Wires module
@@ -39,6 +45,24 @@ secondWireConfig = {
     'wire3' : wire3,
     'wiresToSolve' : [wire2, wire3],
     'wiresToLeave' : [wire1]
+}
+
+if raspberryPi:
+    #Setup for the keypad
+    cols = [digitalio.DigitalInOut(x) for x in (board.D18, board.D19, board.D20)]
+    rows = [digitalio.DigitalInOut(x) for x in (board.D21, board.D22, board.D23, board.D24)]
+    keys = ((1, 2, 3),
+            (4, 5, 6),
+            (7, 8, 9),
+            ('*', 0, '#'))
+
+    keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
+
+#basic object for keypad module
+defaultKeypadConfig = {
+    'word' : "HELLO",
+    "hint" : "YORE",
+    'sequence' : "43556"
 }
 
 if raspberryPi:
@@ -239,11 +263,42 @@ class CutTheWires(Module):
                 self.solve()
 
 class Keypad(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
         Module.__init__(self, modNumber)
+        self.word = keypadConfig["word"]
+        self.hint = keypadConfig["hint"]
+        self.sequence = keypadConfig["sequence"]
+        self.typedNumbers = ""
+        self.lastPressed = datetime.datetime.now()
 
     def checkModule(self):
-        pass
+        #this is the time gone by since last keypad read
+        keypadTimeDiff = (datetime.datetime.now() - self.lastPressed).total_seconds()
+
+        #ignore keypresses if module is solved and debounce 3/4 second
+        if (raspberryPi and not self.solved and keypadTimeDiff > .15):
+            #pull the currently pressed keys from the keypad (array)
+            keys = keypad.pressed_keys
+
+            if(keys):
+                #record the time the last keypress was recorded
+                self.lastPressed = datetime.datetime.now()
+
+                print("Keys pressed: {}".format(keys))
+                #store the number pressed
+                self.typedNumbers += str(keys[0])
+                print("Current sequence: {}".format(self.typedNumbers))
+
+                #if the typed numbers is the max (5)
+                if(len(self.typedNumbers) >= 5):
+                    #check if typed numbers matches sequence
+                    if(self.typedNumbers == self.sequence):
+                        self.solve()
+                    else:
+                        #reset the typed numbers array
+                        self.typedNumbers = ""
+                        self.strike()
+
 
 class BigButton(Module):
     def __init__(self, modNumber):
@@ -349,6 +404,7 @@ def playGame():
         ###MODULES###
         #check the state of each module
         module1.checkModule()
+        module2.checkModule()
 
         time.sleep(0.05)
 
