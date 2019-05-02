@@ -49,8 +49,8 @@ secondWireConfig = {
 
 if raspberryPi:
     #Setup for the keypad
-    cols = [digitalio.DigitalInOut(x) for x in (board.D9, board.D6, board.D5)]
-    rows = [digitalio.DigitalInOut(x) for x in (board.D13, board.D12, board.D11, board.D10)]
+    cols = [digitalio.DigitalInOut(x) for x in (board.D18, board.D19, board.D20)]
+    rows = [digitalio.DigitalInOut(x) for x in (board.D21, board.D22, board.D23, board.D24)]
     keys = ((1, 2, 3),
             (4, 5, 6),
             (7, 8, 9),
@@ -282,7 +282,7 @@ class Keypad(Module):
             #pulled the currently pressed keys from the keypad
             #this is an array
             keys = keypad.pressed_keys
-            print(keys)
+            print("Keys pressed: {}".format(keys))
             if(keys):
                 #store the number pressed
                 self.typedNumbers += keys[0]
