@@ -25,6 +25,8 @@ from Adafruit_LED_Backpack import SevenSegment
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
+#the pin for the button
+buttonPin = 12
 
 #create 3 basic wires for default mission setting
 wire1 = {'pin': wirePin1}
@@ -65,6 +67,12 @@ defaultKeypadConfig = {
     'sequence' : "43556"
 }
 
+#basic object for button
+defaultButtonConfig = {
+    'color' : 'blue',
+    'release' : 'odd'
+}
+
 if raspberryPi:
     # use the broadcom pin layout
     GPIO.setmode(GPIO.BCM) 
@@ -72,6 +80,8 @@ if raspberryPi:
     GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #set button input pin to pulldown
+    GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -301,11 +311,40 @@ class Keypad(Module):
 
 
 class BigButton(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, buttonConfig = defaultButtonConfig):
         Module.__init__(self, modNumber)
+        self.color = buttonConfig["color"]
+        self.release = buttonConfig["release"]
+        self.wasPressed = False
 
     def checkModule(self):
-        pass
+        
+        #if the button is initially pressed
+        if(GPIO.input(buttonPin) and not self.wasPressed):
+            self.wasPressed = True
+        #if the button has been let go
+        elif(not GPIO.input(buttonPin) and self.wasPressed):
+            #get the amount of time left
+            timeLeft = getTimeLeft()
+            minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+            #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
+            if(self.release == "odd"):
+                if(timeLeft > 60):
+                    pass
+                else: 
+                    pass
+            if(self.release == "even"):
+                if(timeLeft > 60):
+                    pass
+                else: 
+                    pass
+            if(self.release == "three"):
+                if(timeLeft > 60):
+                    pass
+                else: 
+                    pass
+            #reset the module state
+            self.wasPressed = False
 
 ###################
 ###OTHER METHODS###
