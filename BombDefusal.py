@@ -314,37 +314,46 @@ class BigButton(Module):
     def __init__(self, modNumber, buttonConfig = defaultButtonConfig):
         Module.__init__(self, modNumber)
         self.color = buttonConfig["color"]
-        self.release = buttonConfig["release"]
         self.wasPressed = False
+        self.releaseOk = False
 
     def checkModule(self):
+        if(not self.solved):
+            #if the button is initially pressed
+            if(GPIO.input(buttonPin) and not self.wasPressed):
+                self.wasPressed = True
+            #if the button has been let go
+            elif(not GPIO.input(buttonPin) and self.wasPressed):
+                #check for numbers in timer based on the color
+                if(self.color == "red"):
+                    self.releaseOk = self.checkTimer("1", "4")
+                elif(self.color == "green"):
+                    self.releaseOk = self.checkTimer("3", "6")
+                elif(self.color == "blue"):
+                    self.releaseOk = self.checkTimer("2", "5")
+
+                #if it was a good release
+                if(self.releaseOk):
+                    self.solve()
+                else:
+                    self.strike()
+
+                #reset the button state
+                self.wasPressed = False
         
-        #if the button is initially pressed
-        if(GPIO.input(buttonPin) and not self.wasPressed):
-            self.wasPressed = True
-        #if the button has been let go
-        elif(not GPIO.input(buttonPin) and self.wasPressed):
-            #get the amount of time left
-            timeLeft = getTimeLeft()
-            minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
-            #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
-            if(self.release == "odd"):
-                if(timeLeft > 60):
-                    pass
-                else: 
-                    pass
-            if(self.release == "even"):
-                if(timeLeft > 60):
-                    pass
-                else: 
-                    pass
-            if(self.release == "three"):
-                if(timeLeft > 60):
-                    pass
-                else: 
-                    pass
-            #reset the module state
-            self.wasPressed = False
+    #check time on clock to see if good button release
+    def checkTimer(self, number1, number2):
+        #get the amount of time left
+        timeLeft = getTimeLeft()
+        minutes, seconds, hundSecs = str(splitTimeLeft(timeLeft))
+        #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
+        if(timeLeft > 60):
+            if(number1 in minutes+seconds or number2 in minutes+seconds):
+                    return True
+            else: 
+                if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
+                    return True
+        return False
 
 ###################
 ###OTHER METHODS###
