@@ -25,6 +25,8 @@ from Adafruit_LED_Backpack import SevenSegment
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
+#the pin for the piezo strike buzzer
+piezoPin = 25
 
 #create 3 basic wires for default mission setting
 wire1 = {'pin': wirePin1}
@@ -72,6 +74,8 @@ if raspberryPi:
     GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #set the piezo pin as an output
+    GPIO.setup(piezoPin, GPIO.OUT)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -209,8 +213,11 @@ class Module(object):
 
     #add a strike to the main bomb instance
     def strike(self):
+        #buzz the piezo
+        GPIO.output(piezoPin, GPIO.HIGH)
         self.bomb.strikes += 1
         print("got a strike!")
+        GPIO.output(piezoPin, GPIO.LOW)
 
     #let the bomb know that this module is complete
     def solve(self):
