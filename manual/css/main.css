@@ -189,6 +189,12 @@ table, th, td {
 
 td, th {
     padding: .3em .6em .2em;
+    text-align: center;
+}
+
+#button_table{
+    margin: auto;
+    margin-top: 5px;
 }
 
 .new-block-formatting-context {
