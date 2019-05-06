@@ -81,4 +81,54 @@ keypadConfig1 = {
     'sequence' : "51659"
 }
 
-keypadConfigs = [keypadConfig1]
+keypadConfig2 = {
+    'word' : "MEMES"
+    "hint" : "NEW"
+    'sequence' : "63637"
+}
+
+keypadConfig3 = {
+    'word' : "JOCKO"
+    "hint" : "BLUE"
+    'sequence' : "56256"
+}
+
+keypadConfig4 = {
+    'word' : "WUMBO"
+    "hint" : "BLEW"
+    'sequence' : "98626"
+}
+
+keypadConfig5 = {
+    'word' : "KOPIE"
+    "hint" : "FLU"
+    'sequence' : "56743"
+}
+
+keypadConfig6 = {
+    'word' : "MUSIK"
+    "hint" : "FLEW"
+    'sequence' : "68745"
+}
+
+keypadConfig7 = {
+    'word' : "HUYAM"
+    "hint" : "TO"
+    'sequence' : "48926"
+}
+
+keypadConfig8 = {
+    'word' : "PUJAH"
+    "hint" : "TOO"
+    'sequence' : "78524"
+}
+
+keypadConfig9 = {
+    'word' : "JIGGY"
+    "hint" : "TWO"
+    'sequence' : "54449"
+}
+
+keypadConfigs = [
+    keypadConfig1, keypadConfig2, keypadConfig3, keypadConfig4, keypadConfig5, keypadConfig6, keypadConfig7, keypadConfig8, keypadConfig9
+    ]
