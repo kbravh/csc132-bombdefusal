@@ -40,13 +40,6 @@ if raspberryPi:
 
     keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
 
-#basic object for keypad module
-defaultKeypadConfig = {
-    'word' : "HELLO",
-    "hint" : "YORE",
-    'sequence' : "43556"
-}
-
 if raspberryPi:
     # use the broadcom pin layout
     GPIO.setmode(GPIO.BCM) 
@@ -245,7 +238,7 @@ class CutTheWires(Module):
                 self.solve()
 
 class Keypad(Module):
-    def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
+    def __init__(self, modNumber, keypadConfig = configs.defaultKeypadConfig):
         Module.__init__(self, modNumber)
         self.word = keypadConfig["word"]
         self.hint = keypadConfig["hint"]
@@ -334,17 +327,19 @@ def gameSetup():
     global bomb
     global module1, module2, module3
 
-    wireConfig = configs.wireConfigs[random.randint(0,3)]
-    if(wireConfig.type == 'vowel'):
-        serialNumber = configs.vowelSerialNumbers[random.randint(0,6)]
-    elif(wireConfig.type == 'odd'):
-        serialNumber = configs.oddSerialNumbers[random.randint(0,6)]
+    wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs))]
+    if(wireConfig['type'] == 'vowel'):
+        serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers))]
+    elif(wireConfig['type'] == 'odd'):
+        serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers))]
     else:
-        serialNumber = configs.evenSerialNumbers[random.randint(0,6)]
+        serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers))]
+
+    keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs))]
 
     bomb = Bomb(120)
-    module1 = CutTheWires(0)
-    module2 = Keypad(1)
+    module1 = CutTheWires(0, wireConfig)
+    module2 = Keypad(1, keypadConfig)
     module3 = BigButton(2)
 
 def getTimeLeft():

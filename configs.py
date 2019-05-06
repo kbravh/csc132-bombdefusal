@@ -66,3 +66,19 @@ evenSerialNumbers = [
     'QK89F3M4',
     'M00R17L2'
 ]
+
+###KEYPAD###
+#basic object for keypad module
+defaultKeypadConfig = {
+    'word' : "HELLO",
+    "hint" : "YORE",
+    'sequence' : "43556"
+}
+
+keypadConfig1 = {
+    'word' : "JANKY",
+    "hint" : "KNEW",
+    'sequence' : "51659"
+}
+
+keypadConfigs = [keypadConfig1]
