@@ -10,6 +10,7 @@ raspberryPi = False
 
 #Abstraction
 import abc
+import random
 #GPIO
 import RPi.GPIO as GPIO
 #Keypad
@@ -20,32 +21,13 @@ import adafruit_matrixkeypad
 import time
 import datetime
 from Adafruit_LED_Backpack import SevenSegment
+
+import configs
 ######################################################
 #the pins used for the Cut The Wires module
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
-
-#create 3 basic wires for default mission setting
-wire1 = {'pin': wirePin1}
-wire2 = {'pin': wirePin2}
-wire3 = {'pin': wirePin3}
-
-#the basic wire setup for Cut The Wires
-defaultWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire1],
-    'wiresToLeave' : [wire2, wire3]
-}
-secondWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire2, wire3],
-    'wiresToLeave' : [wire1]
-}
 
 if raspberryPi:
     #Setup for the keypad
@@ -225,7 +207,7 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self, modNumber, wireConfig = defaultWireConfig):
+    def __init__(self, modNumber, wireConfig = configs.defaultWireConfig):
         Module.__init__(self, modNumber)
         self.wire1 = wireConfig['wire1']
         self.wire2 = wireConfig['wire2']
@@ -351,6 +333,15 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
+
+    wireConfig = configs.wireConfigs[random.randint(0,3)]
+    if(wireConfig.type == 'vowel'):
+        serialNumber = configs.vowelSerialNumbers[random.randint(0,6)]
+    elif(wireConfig.type == 'odd'):
+        serialNumber = configs.oddSerialNumbers[random.randint(0,6)]
+    else:
+        serialNumber = configs.evenSerialNumbers[random.randint(0,6)]
+
     bomb = Bomb(120)
     module1 = CutTheWires(0)
     module2 = Keypad(1)
