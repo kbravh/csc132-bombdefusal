@@ -50,17 +50,20 @@ secondWireConfig = {
 
 class mainGUI(Frame):
     def __init__(self, parent):
-        Frame.__init__(self, parent, bg="white")
-        parent.attributes("-fullscreen", True)
+        Frame.__init__(self, parent, bg="black")
+        if(raspberryPi):
+            parent.attributes("-fullscreen", True)
         self.setupGUI()
 
     def setupGUI(self):
-        pass
+        self.pack(fill=BOTH, expand=1)
+        console_frame = Frame(self)
 
 ###Set up the GUI###
 bombWindow = Tk()
 bombWindow.title("Keep Talking and Nobody Explodes!")
-p = mainGUI(bombWindow)
+bombWindow.geometry("600x800")
+b = mainGUI(bombWindow)
 
 if raspberryPi:
     #Setup for the keypad
@@ -230,6 +233,7 @@ class Module(object):
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
+        self.solved = True
         print("Module solved!")
     #abstract method to determine if a module is complete
     #each module type will need to define this
