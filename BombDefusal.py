@@ -25,8 +25,11 @@ from Adafruit_LED_Backpack import SevenSegment
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
-#the pin for the button
-buttonPin = 12
+#the pins for the button
+redPin = 12
+greenPin = 13
+bluePin = 16
+buttonPin = 17
 
 #create 3 basic wires for default mission setting
 wire1 = {'pin': wirePin1}
@@ -82,6 +85,10 @@ if raspberryPi:
     GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     #set button input pin to pulldown
     GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #as the RGB LED is common anode, we'll default the pins high
+    GPIO.setup(redPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(greenPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(bluePin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
