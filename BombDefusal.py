@@ -25,6 +25,11 @@ from Adafruit_LED_Backpack import SevenSegment
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
+#the pins for the button
+redPin = 12
+greenPin = 13
+bluePin = 16
+buttonPin = 17
 
 #create 3 basic wires for default mission setting
 wire1 = {'pin': wirePin1}
@@ -65,6 +70,11 @@ defaultKeypadConfig = {
     'sequence' : "43556"
 }
 
+#basic object for button
+defaultButtonConfig = {
+    'color' : 'blue'
+}
+
 if raspberryPi:
     # use the broadcom pin layout
     GPIO.setmode(GPIO.BCM) 
@@ -72,6 +82,12 @@ if raspberryPi:
     GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #set button input pin to pulldown
+    GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #as the RGB LED is common anode, we'll default the pins high
+    GPIO.setup(redPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(greenPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(bluePin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -301,11 +317,61 @@ class Keypad(Module):
 
 
 class BigButton(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, buttonConfig = defaultButtonConfig):
         Module.__init__(self, modNumber)
+        self.color = buttonConfig["color"]
+        self.wasPressed = False
+        self.releaseOk = False
 
     def checkModule(self):
-        pass
+        if(not self.solved):
+            #if the button is initially pressed
+            if(GPIO.input(buttonPin) and not self.wasPressed):
+                self.wasPressed = True
+                if(self.color == 'red'):
+                    GPIO.output(redPin, GPIO.LOW)
+                elif(self.color == 'green'):
+                    GPIO.output(greenPin, GPIO.LOW)
+                elif(self.color == 'blue'):
+                    GPIO.output(bluePin, GPIO.LOW)
+
+            #if the button has been let go
+            elif(not GPIO.input(buttonPin) and self.wasPressed):
+                #turn off all colors
+                GPIO.output(redPin, GPIO.HIGH)
+                GPIO.output(greenPin, GPIO.HIGH)
+                GPIO.output(bluePin, GPIO.HIGH)
+
+                #check for numbers in timer based on the color
+                if(self.color == "red"):
+                    self.releaseOk = self.checkTimer("1", "4")
+                elif(self.color == "green"):
+                    self.releaseOk = self.checkTimer("3", "6")
+                elif(self.color == "blue"):
+                    self.releaseOk = self.checkTimer("2", "5")
+
+                #if it was a good release
+                if(self.releaseOk):
+                    self.solve()
+                else:
+                    self.strike()
+
+                #reset the button state
+                self.wasPressed = False
+        
+    #check time on clock to see if good button release
+    def checkTimer(self, number1, number2):
+        #get the amount of time left
+        timeLeft = getTimeLeft()
+        minutes, seconds, hundSecs = str(splitTimeLeft(timeLeft))
+        #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
+        if(timeLeft > 60):
+            if(number1 in minutes+seconds or number2 in minutes+seconds):
+                    return True
+            else: 
+                if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
+                    return True
+        return False
 
 ###################
 ###OTHER METHODS###
