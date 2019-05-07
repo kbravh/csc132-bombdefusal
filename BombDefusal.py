@@ -86,9 +86,9 @@ if raspberryPi:
     #set button input pin to pulldown
     GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     #as the RGB LED is common anode, we'll default the pins high
-    GPIO.setup(redPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(greenPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(bluePin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(redPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(greenPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(bluePin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -329,8 +329,20 @@ class BigButton(Module):
             #if the button is initially pressed
             if(GPIO.input(buttonPin) and not self.wasPressed):
                 self.wasPressed = True
+                if(self.color == 'red'):
+                    GPIO.output(redPin, GPIO.LOW)
+                elif(self.color == 'green'):
+                    GPIO.output(greenPin, GPIO.LOW)
+                elif(self.color == 'blue'):
+                    GPIO.output(bluePin, GPIO.LOW)
+
             #if the button has been let go
             elif(not GPIO.input(buttonPin) and self.wasPressed):
+                #turn off all colors
+                GPIO.output(redPin, GPIO.HIGH)
+                GPIO.output(greenPin, GPIO.HIGH)
+                GPIO.output(bluePin, GPIO.HIGH)
+
                 #check for numbers in timer based on the color
                 if(self.color == "red"):
                     self.releaseOk = self.checkTimer("1", "4")
