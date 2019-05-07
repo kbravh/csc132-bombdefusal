@@ -53,6 +53,8 @@ if raspberryPi:
     # Initialize the display. Must be called once before using the display.
     segment.begin()
 
+buttonColors = ['red', 'green', 'blue']
+
 #the bomb container for all games
 bomb = None
 #the modules containers for all games
@@ -337,10 +339,12 @@ def gameSetup():
 
     keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs))]
 
+    buttonConfig = buttonColors[random.randint(0, len(buttonColors))]
+
     bomb = Bomb(120)
     module1 = CutTheWires(0, wireConfig)
     module2 = Keypad(1, keypadConfig)
-    module3 = BigButton(2)
+    module3 = BigButton(2, buttonConfig)
 
 def getTimeLeft():
     #this is the time right now
