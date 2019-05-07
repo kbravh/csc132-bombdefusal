@@ -10,6 +10,7 @@ raspberryPi = False
 
 #Abstraction
 import abc
+import random
 #GPIO
 import RPi.GPIO as GPIO
 #Keypad
@@ -20,6 +21,8 @@ import adafruit_matrixkeypad
 import time
 import datetime
 from Adafruit_LED_Backpack import SevenSegment
+
+import configs
 ######################################################
 #the pins used for the Cut The Wires module
 wirePin1 = 4
@@ -31,27 +34,6 @@ greenPin = 13
 bluePin = 16
 buttonPin = 17
 
-#create 3 basic wires for default mission setting
-wire1 = {'pin': wirePin1}
-wire2 = {'pin': wirePin2}
-wire3 = {'pin': wirePin3}
-
-#the basic wire setup for Cut The Wires
-defaultWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire1],
-    'wiresToLeave' : [wire2, wire3]
-}
-secondWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire2, wire3],
-    'wiresToLeave' : [wire1]
-}
-
 if raspberryPi:
     #Setup for the keypad
     cols = [digitalio.DigitalInOut(x) for x in (board.D18, board.D19, board.D20)]
@@ -62,18 +44,6 @@ if raspberryPi:
             ('*', 0, '#'))
 
     keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
-
-#basic object for keypad module
-defaultKeypadConfig = {
-    'word' : "HELLO",
-    "hint" : "YORE",
-    'sequence' : "43556"
-}
-
-#basic object for button
-defaultButtonConfig = {
-    'color' : 'blue'
-}
 
 if raspberryPi:
     # use the broadcom pin layout
@@ -241,7 +211,7 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self, modNumber, wireConfig = defaultWireConfig):
+    def __init__(self, modNumber, wireConfig = configs.defaultWireConfig):
         Module.__init__(self, modNumber)
         self.wire1 = wireConfig['wire1']
         self.wire2 = wireConfig['wire2']
@@ -279,7 +249,7 @@ class CutTheWires(Module):
                 self.solve()
 
 class Keypad(Module):
-    def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
+    def __init__(self, modNumber, keypadConfig = configs.defaultKeypadConfig):
         Module.__init__(self, modNumber)
         self.word = keypadConfig["word"]
         self.hint = keypadConfig["hint"]
@@ -417,10 +387,23 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
+
+    wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs))]
+    if(wireConfig['type'] == 'vowel'):
+        serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers))]
+    elif(wireConfig['type'] == 'odd'):
+        serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers))]
+    else:
+        serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers))]
+
+    keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs))]
+
+    buttonConfig = configs.buttonColors[random.randint(0, len(configs.buttonColors))]
+
     bomb = Bomb(120)
-    module1 = CutTheWires(0)
-    module2 = Keypad(1)
-    module3 = BigButton(2)
+    module1 = CutTheWires(0, wireConfig)
+    module2 = Keypad(1, keypadConfig)
+    module3 = BigButton(2, buttonConfig)
 
 def getTimeLeft():
     #this is the time right now
