@@ -72,8 +72,7 @@ defaultKeypadConfig = {
 
 #basic object for button
 defaultButtonConfig = {
-    'color' : 'blue',
-    'release' : 'odd'
+    'color' : 'blue'
 }
 
 if raspberryPi:
