@@ -287,7 +287,7 @@ class Keypad(Module):
 
 
 class BigButton(Module):
-    def __init__(self, modNumber, buttonConfig = defaultButtonConfig):
+    def __init__(self, modNumber, buttonConfig = configs.defaultButtonConfig):
         Module.__init__(self, modNumber)
         self.color = buttonConfig["color"]
         self.wasPressed = False
@@ -388,17 +388,17 @@ def gameSetup():
     global bomb
     global module1, module2, module3
 
-    wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs))]
+    wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
     if(wireConfig['type'] == 'vowel'):
-        serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers))]
+        serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers)-1)]
     elif(wireConfig['type'] == 'odd'):
-        serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers))]
+        serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers)-1)]
     else:
-        serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers))]
+        serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers)-1)]
 
-    keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs))]
+    keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs)-1)]
 
-    buttonConfig = configs.buttonColors[random.randint(0, len(configs.buttonColors))]
+    buttonConfig = configs.buttonColors[random.randint(0, len(configs.buttonColors)-1)]
 
     bomb = Bomb(120)
     module1 = CutTheWires(0, wireConfig)

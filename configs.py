@@ -136,7 +136,11 @@ keypadConfigs = [
 ###BUTTON###
 #basic object for button
 defaultButtonConfig = {
-    'color' : 'blue'
+    "color" : "blue"
 }
 
-buttonColors = ['red', 'green', 'blue']
+buttonColors = [
+    {'color': 'red'},
+    {'color': 'green'},
+    {'color': 'blue'}
+]
