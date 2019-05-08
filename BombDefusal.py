@@ -56,8 +56,13 @@ class mainGUI(Frame):
         self.setupGUI()
 
     def setupGUI(self):
-        self.pack(fill=BOTH, expand=1)
         console_frame = Frame(self)
+        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
+        mainGUI.console.pack(fill=Y, expand=1)
+        console_frame.pack(side=LEFT, fill=Y)
+        self.pack(fill=BOTH, expand=1)
+
+
 
 ###Set up the GUI###
 bombWindow = Tk()
@@ -396,8 +401,6 @@ def splitTimeLeft(timeLeft):
 #this is triggered by the "Start" button
 def playGame():
     while(True):
-        bombWindow.update_idletasks()
-        bombWindow.update()
 
         ###STRIKE SPEEDING UP TIMER###
         if (bomb.strikes == 1):
@@ -426,6 +429,14 @@ def playGame():
         module1.checkModule()
         module2.checkModule()
 
+        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "time left: {}:{}:{}".format(minutes, seconds, hundSecs))
+        mainGUI.console.config(state=DISABLED)
+
+
+        bombWindow.update_idletasks()
+        bombWindow.update()
         time.sleep(0.05)
 
 
