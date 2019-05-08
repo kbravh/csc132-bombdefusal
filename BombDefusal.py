@@ -78,9 +78,12 @@ if raspberryPi:
     #set button input pin to pulldown
     GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     #as the RGB LED is common anode, we'll default the pins high
-    GPIO.setup(redPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(greenPin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(bluePin, GPIO.OUT, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(redPin, GPIO.OUT)
+    GPIO.setup(greenPin, GPIO.OUT)
+    GPIO.setup(bluePin, GPIO.OUT)
+    GPIO.output(redPin, GPIO.LOW)
+    GPIO.output(greenPin, GPIO.LOW)
+    GPIO.output(bluePin, GPIO.LOW)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -411,7 +414,7 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
-    
+
     bomb = Bomb(60)
 
     wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
