@@ -322,18 +322,24 @@ class BigButton(Module):
 
     def checkModule(self):
         if(not self.solved):
-            #if the button is initially pressed
-            if(GPIO.input(buttonPin) and not self.wasPressed):
-                self.wasPressed = True
+            if(self.wasPressed):
                 if(self.color == 'red'):
+                    print("red is on")
                     GPIO.output(redPin, GPIO.LOW)
                 elif(self.color == 'green'):
+                    print("green is on")
                     GPIO.output(greenPin, GPIO.LOW)
                 elif(self.color == 'blue'):
+                    print("blue is on")
                     GPIO.output(bluePin, GPIO.LOW)
+            #if the button is initially pressed
+            if(GPIO.input(buttonPin) and not self.wasPressed):
+                print("Button has been pressed!")
+                self.wasPressed = True
 
             #if the button has been let go
             elif(not GPIO.input(buttonPin) and self.wasPressed):
+                print("button has been let go")
                 #turn off all colors
                 GPIO.output(redPin, GPIO.HIGH)
                 GPIO.output(greenPin, GPIO.HIGH)
