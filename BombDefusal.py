@@ -366,7 +366,10 @@ class BigButton(Module):
     def checkTimer(self, number1, number2):
         #get the amount of time left
         timeLeft = getTimeLeft()
-        minutes, seconds, hundSecs = str(splitTimeLeft(timeLeft))
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+        minutes = str(minutes)
+        seconds = str(seconds)
+        hundSecs = str(hundSecs)
         #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
         if(timeLeft > 60):
             if(number1 in minutes+seconds or number2 in minutes+seconds):
