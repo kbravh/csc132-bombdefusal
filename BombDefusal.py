@@ -489,6 +489,7 @@ def playGame():
         #check the state of each module
         module1.checkModule()
         module2.checkModule()
+        module3.checkModule()
 
         mainGUI.console.config(state=NORMAL)
         mainGUI.console.delete("1.0", END)
