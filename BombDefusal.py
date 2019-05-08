@@ -431,7 +431,20 @@ def playGame():
 
         mainGUI.console.config(state=NORMAL)
         mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, "time left: {}:{}:{}".format(minutes, seconds, hundSecs))
+        mainGUI.console.insert(END, \
+            "system boot\
+                \nrw init=/sysroot/bin/bash\
+                \nrd.lvm.lv=centos/root/swap crash\\\
+                \nvolume serial number: {}\
+                \ninitrd16 /initramfs-4.10.1-1.e17.e1repo.x86_64.img\
+                \n./init_modules.sh\
+                \nLoaded: /opt/config/configs.sys\
+                \nkeypad initiated; config[key.set] => search -cf \"keyword\"\
+                \nkeyword: {}\
+                \nBootup successful; process initializing...\
+                \ntime left: {}:{}:{}\
+                \nfatal_strikes = 3 => : {}"
+                .format("XXXXXX", "YORE", minutes, seconds, hundSecs, "X"*bomb.strikes))
         mainGUI.console.config(state=DISABLED)
 
 
