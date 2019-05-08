@@ -11,6 +11,7 @@ raspberryPi = False
 #Abstraction
 import abc
 import random
+from tkinter import *
 #GPIO
 import RPi.GPIO as GPIO
 #Keypad
@@ -33,6 +34,28 @@ redPin = 12
 greenPin = 13
 bluePin = 16
 buttonPin = 17
+
+class mainGUI(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent, bg="black")
+        if(raspberryPi):
+            parent.attributes("-fullscreen", True)
+        self.setupGUI()
+
+    def setupGUI(self):
+        console_frame = Frame(self)
+        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
+        mainGUI.console.pack(fill=Y, expand=1)
+        console_frame.pack(side=LEFT, fill=Y)
+        self.pack(fill=BOTH, expand=1)
+
+
+
+###Set up the GUI###
+bombWindow = Tk()
+bombWindow.title("Keep Talking and Nobody Explodes!")
+bombWindow.geometry("600x800")
+b = mainGUI(bombWindow)
 
 if raspberryPi:
     #Setup for the keypad
@@ -81,6 +104,8 @@ class Bomb(object):
         self.timer = timer
         self.strikes = 0
         self.modules = [0,0,0]
+        self.serialNumber = ""
+        self.keyword = ""
 
     @property
     def timer(self):
@@ -196,14 +221,13 @@ class Module(object):
     #add a strike to the main bomb instance
     def strike(self):
         self.bomb.strikes += 1
-        print("got a strike!")
+        print("Got a strike!")
 
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
         self.solved = True
-        print("module solved!")
-
+        print("Module solved!")
     #abstract method to determine if a module is complete
     #each module type will need to define this
     @abc.abstractmethod
@@ -252,7 +276,7 @@ class Keypad(Module):
     def __init__(self, modNumber, keypadConfig = configs.defaultKeypadConfig):
         Module.__init__(self, modNumber)
         self.word = keypadConfig["word"]
-        self.hint = keypadConfig["hint"]
+        bomb.keyword = keypadConfig["hint"]
         self.sequence = keypadConfig["sequence"]
         self.typedNumbers = ""
         self.lastPressed = datetime.datetime.now()
@@ -387,20 +411,21 @@ def writeToClock(minutes, seconds, hundSecs):
 def gameSetup():
     global bomb
     global module1, module2, module3
+    
+    bomb = Bomb(60)
 
     wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
     if(wireConfig['type'] == 'vowel'):
-        serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers)-1)]
+        bomb.serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers)-1)]
     elif(wireConfig['type'] == 'odd'):
-        serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers)-1)]
+        bomb.serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers)-1)]
     else:
-        serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers)-1)]
+        bomb.serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers)-1)]
 
     keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs)-1)]
 
     buttonConfig = configs.buttonColors[random.randint(0, len(configs.buttonColors)-1)]
 
-    bomb = Bomb(120)
     module1 = CutTheWires(0, wireConfig)
     module2 = Keypad(1, keypadConfig)
     module3 = BigButton(2, buttonConfig)
@@ -428,6 +453,7 @@ def splitTimeLeft(timeLeft):
 #this is triggered by the "Start" button
 def playGame():
     while(True):
+
         ###STRIKE SPEEDING UP TIMER###
         if (bomb.strikes == 1):
             bomb.timer = bomb.timer - 0.025
@@ -455,6 +481,27 @@ def playGame():
         module1.checkModule()
         module2.checkModule()
 
+        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, \
+            "system boot\
+                \nrw init=/sysroot/bin/bash\
+                \nrd.lvm.lv=centos/root/swap crash\\\
+                \nvolume serial number: {}\
+                \ninitrd16 /initramfs-4.10.1-1.e17.e1repo.x86_64.img\
+                \n./init_modules.sh\
+                \nLoaded: /opt/config/configs.sys\
+                \nkeypad initiated; config[key.set] => search -cf \"keyword\"\
+                \nkeyword: {}\
+                \nBootup successful; process initializing...\
+                \ntime left: {}:{}:{}\
+                \nfatal_strikes = 3 => : {}"
+                .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
+        mainGUI.console.config(state=DISABLED)
+
+
+        bombWindow.update_idletasks()
+        bombWindow.update()
         time.sleep(0.05)
 
 
