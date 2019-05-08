@@ -374,9 +374,9 @@ class BigButton(Module):
         if(timeLeft > 60):
             if(number1 in minutes+seconds or number2 in minutes+seconds):
                     return True
-            else: 
-                if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
-                    return True
+        else: 
+            if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
+                return True
         return False
 
 ###################
