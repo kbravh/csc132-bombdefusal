@@ -349,9 +349,9 @@ class BigButton(Module):
                 if(self.color == "red"):
                     self.releaseOk = self.checkTimer("1", "4")
                 elif(self.color == "green"):
-                    self.releaseOk = self.checkTimer("3", "6")
-                elif(self.color == "blue"):
                     self.releaseOk = self.checkTimer("2", "5")
+                elif(self.color == "blue"):
+                    self.releaseOk = self.checkTimer("3", "6")
 
                 #if it was a good release
                 if(self.releaseOk):
