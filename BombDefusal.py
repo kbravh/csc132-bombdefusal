@@ -52,7 +52,7 @@ class mainGUI(Frame):
         mainGUI.image.pack_propagate(False)
 
         console_frame = Frame(self)
-        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
+        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED, font="fixedsys 12")
         mainGUI.console.config(highlightbackground="black", highlightthickness=0, bd=0)
         mainGUI.console.pack(fill=Y, expand=1)
         console_frame.pack(side=LEFT, fill=Y)
@@ -152,19 +152,20 @@ class Bomb(object):
             self.win()
 
     def startBomb(self):
-        #do initial screen output
+        #add initial raspbombs
         pibombs = PhotoImage(file="img/pibombs.gif")
         mainGUI.image.config(image=pibombs)
         mainGUI.image.image = pibombs
         bombWindow.update()
         time.sleep(1)
+        #loop through bootup text and add line by line
         console_text = ""
         for text in configs.console_texts:
             console_text += text
             mainGUI.console.config(state=NORMAL)
             mainGUI.console.delete("1.0", END)
             mainGUI.console.insert(END, console_text)
-            mainGUI.console.config(state=DISABLED)
+            mainGUI.console.config(state=DISABLED, font="fixedsys 12")
             bombWindow.update()
             time.sleep(random.uniform(.3, 1.2))
 
@@ -185,20 +186,20 @@ class Bomb(object):
         print ("BOOM!")
         mainGUI.image.config(image="")
         mainGUI.image.image = ""
-        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.config(state=NORMAL, font="fixedsys 20")
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, \
-            "     _.-^^---....,,--       \
-            \n _--                  --_  \
-            \n<                        >)\
-            \n|                         | \
-            \n \._                   _./  \
-            \n    ```--. . , ; .--'''       \
-            \n          | |   |             \
-            \n       .-=||  | |=-.   \
-            \n       `-=#$%&%$#=-'   \
-            \n          | ;  :|     \
-            \n _____.,-#%&$@%#&#~,._____")
+            "          _.-^^---....,,--._     \
+            \n      _--                  --_  \
+            \n     <                        >)\
+            \n     |                         | \
+            \n      \._                   _./  \
+            \n         ```--. . , ; .--'''       \
+            \n               | |   |             \
+            \n            .-=||  | |=-.   \
+            \n            `-=#$%&%$#=-'   \
+            \n               | ;  :|     \
+            \n      _____.,-#%&$@%#&#~,._____")
         mainGUI.console.config(state=DISABLED)
         bombWindow.update_idletasks()
         bombWindow.update()
@@ -546,20 +547,8 @@ def playGame():
 
         mainGUI.console.config(state=NORMAL)
         mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, \
-            "system boot\
-                \nrw init=/sysroot/bin/bash\
-                \nrd.lvm.lv=centos/root/swap crash\\\
-                \nvolume serial number: {}\
-                \ninitrd16 /initramfs-4.10.1-1.e17.e1repo.x86_64.img\
-                \n./init_modules.sh\
-                \nLoaded: /opt/config/configs.sys\
-                \nkeypad initiated; config[key.set] => search -cf \"keyword\"\
-                \nkeyword: {}\
-                \nBootup successful; process initializing...\
-                \ntime left: {}:{}:{}\
-                \nfatal_strikes = 3 => : {}"
-                .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
+        mainGUI.console.insert(END, configs.console_full_text
+            .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
         mainGUI.console.config(state=DISABLED)
 
 
