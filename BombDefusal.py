@@ -152,6 +152,15 @@ class Bomb(object):
             self.win()
 
     def startBomb(self):
+        #set timer to dashes
+        if raspberryPi:
+            #flash the timer on and off
+            segment.set_digit(0, "-")
+            segment.set_digit(1, "-")
+            segment.set_digit(2, "-")
+            segment.set_digit(3, "-")
+            segment.set_colon(True)
+            segment.write_display()
         #add initial raspbombs
         pibombs = PhotoImage(file="img/pibombs.gif")
         mainGUI.image.config(image=pibombs)
@@ -159,7 +168,7 @@ class Bomb(object):
         bombWindow.update()
         time.sleep(1)
         #loop through bootup text and add line by line
-        console_text = ""
+        console_text = ""a
         for text in configs.console_texts:
             console_text += text
             mainGUI.console.config(state=NORMAL)
