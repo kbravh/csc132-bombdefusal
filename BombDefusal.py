@@ -51,6 +51,11 @@ class mainGUI(Frame):
         mainGUI.image.pack(side=TOP, fill=Y)
         mainGUI.image.pack_propagate(False)
 
+        mainGUI.reset = Button(self, bg="black", fg="black", text="Reset?", bd=0,
+            borderwidth=0, highlightthickness=0, activebackground="black",
+            command=lambda: gameSetup(), font="fixedsys 20")
+        mainGUI.reset.pack(side=BOTTOM, fill=Y)
+
         console_frame = Frame(self)
         mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED, font="fixedsys 12")
         mainGUI.console.config(highlightbackground="black", highlightthickness=0, bd=0)
@@ -161,10 +166,17 @@ class Bomb(object):
             segment.set_digit(3, "-")
             segment.set_colon(True)
             segment.write_display()
+        #hide reset button
+        mainGUI.reset.config(fg="black")
         #add initial raspbombs
         pibombs = PhotoImage(file="img/pibombs.gif")
         mainGUI.image.config(image=pibombs)
         mainGUI.image.image = pibombs
+        #wipe bomb image
+        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "")
+        mainGUI.console.config(state=DISABLED, font="fixedsys 12")
         bombWindow.update()
         time.sleep(1)
         #loop through bootup text and add line by line
@@ -207,6 +219,8 @@ class Bomb(object):
             bombWindow.update_idletasks()
             bombWindow.update()
             time.sleep(0.1)
+
+        mainGUI.reset.config(fg="white")
         while(True):
             #TODO - Add restart button that calls gameSetup()
             bombWindow.update_idletasks()
