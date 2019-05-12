@@ -51,13 +51,13 @@ class mainGUI(Frame):
         mainGUI.image.pack(side=TOP, fill=Y)
         mainGUI.image.pack_propagate(False)
 
-        mainGUI.reset = Button(self, bg="black", fg="black", text="Reset?", bd=0,
+        mainGUI.reset = Button(self, bg="black", fg="white", text="Start", bd=0,
             borderwidth=0, highlightthickness=0, activebackground="black",
             command=lambda: gameSetup(), font="fixedsys 20")
         mainGUI.reset.pack(side=BOTTOM, fill=Y)
 
         console_frame = Frame(self)
-        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED, font="fixedsys 12")
+        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
         mainGUI.console.config(highlightbackground="black", highlightthickness=0, bd=0)
         mainGUI.console.pack(fill=Y, expand=1)
         console_frame.pack(side=LEFT, fill=Y)
@@ -167,7 +167,7 @@ class Bomb(object):
             segment.set_colon(True)
             segment.write_display()
         #hide reset button
-        mainGUI.reset.config(fg="black")
+        mainGUI.reset.config(fg="black", command=lambda: mainMenu())
         #add initial raspbombs
         pibombs = PhotoImage(file="img/pibombs.gif")
         mainGUI.image.config(image=pibombs)
@@ -205,8 +205,11 @@ class Bomb(object):
 
     def explode(self):
         print ("BOOM!")
+        #hide the bomb berries
         mainGUI.image.config(image="")
         mainGUI.image.image = ""
+        #change button to "retry"
+        mainGUI.reset.config(text="Retry?")
         #create an array of empty strings
         explosion_text = ["" for var in range(len(configs.explosion))]
         #for each line of the explosion, replace from the bottom up
@@ -222,7 +225,6 @@ class Bomb(object):
 
         mainGUI.reset.config(fg="white")
         while(True):
-            #TODO - Add restart button that calls gameSetup()
             bombWindow.update_idletasks()
             bombWindow.update()
             if raspberryPi:
@@ -483,8 +485,24 @@ def writeToClock(minutes, seconds, hundSecs):
     # update the actual display LEDs.
     segment.write_display()
 
+def mainMenu():
+    #show main menu "image"
+    mainGUI.console.config(state=NORMAL, font="fixedsys 10")
+    mainGUI.console.delete("1.0", END)
+    mainGUI.console.insert(END, "Defuse This Bomb")
+    mainGUI.console.config(state=DISABLED)
+    #hide the bomb berries
+    mainGUI.image.config(image="")
+    mainGUI.image.image = ""
+    #show the start button
+    mainGUI.reset.config(command=lambda: gameSetup(), text="Start", fg="white")
+
+    while(True):
+        bombWindow.update_idletasks()
+        bombWindow.update()
+
 #this method initializes the bomb
-#this is triggered by "New Game" or "Try Again" button
+#this is triggered by "Start" or "Retry" button
 ''' this could be extended to support multiple levels/configs
     based on parameters passed in'''
 def gameSetup():
@@ -574,6 +592,4 @@ def playGame():
         bombWindow.update()
         time.sleep(0.05)
 
-
-#this is triggered by the "Start" button
-gameSetup()
+mainMenu()
