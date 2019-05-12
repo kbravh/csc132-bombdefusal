@@ -168,7 +168,7 @@ class Bomb(object):
         bombWindow.update()
         time.sleep(1)
         #loop through bootup text and add line by line
-        console_text = ""a
+        console_text = ""
         for text in configs.console_texts:
             console_text += text
             mainGUI.console.config(state=NORMAL)
