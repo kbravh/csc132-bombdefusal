@@ -45,7 +45,7 @@ class mainGUI(Frame):
     def setupGUI(self):
         self.pack(fill=BOTH, expand=1)
         #bomb berries
-        mainGUI.image = Label(self, width=600, image=None)
+        mainGUI.image = Label(self, width=600, image=None, bg="black")
         mainGUI.image.image = None
         mainGUI.image.config(highlightbackground="black", highlightthickness=0, bd=0)
         mainGUI.image.pack(side=TOP, fill=Y)
@@ -186,23 +186,18 @@ class Bomb(object):
         print ("BOOM!")
         mainGUI.image.config(image="")
         mainGUI.image.image = ""
-        mainGUI.console.config(state=NORMAL, font="fixedsys 20")
-        mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, \
-            "          _.-^^---....,,--._     \
-            \n      _--                  --_  \
-            \n     <                        >)\
-            \n     |                         | \
-            \n      \._                   _./  \
-            \n         ```--. . , ; .--'''       \
-            \n               | |   |             \
-            \n            .-=||  | |=-.   \
-            \n            `-=#$%&%$#=-'   \
-            \n               | ;  :|     \
-            \n      _____.,-#%&$@%#&#~,._____")
-        mainGUI.console.config(state=DISABLED)
-        bombWindow.update_idletasks()
-        bombWindow.update()
+        #create an array of empty strings
+        explosion_text = ["" for var in range(len(configs.explosion))]
+        #for each line of the explosion, replace from the bottom up
+        for line in range(len(explosion_text)-1, -1, -1):
+            explosion_text[line] = configs.explosion[line]
+            mainGUI.console.config(state=NORMAL, font="fixedsys 20")
+            mainGUI.console.delete("1.0", END)
+            mainGUI.console.insert(END, "\n\n\n"+"\n".join(explosion_text))
+            mainGUI.console.config(state=DISABLED)
+            bombWindow.update_idletasks()
+            bombWindow.update()
+            time.sleep(0.1)
         while(True):
             #TODO - Add restart button that calls gameSetup()
             bombWindow.update_idletasks()
@@ -473,7 +468,7 @@ def gameSetup():
     global bomb
     global module1, module2, module3
 
-    bomb = Bomb(60)
+    bomb = Bomb(10)
 
     wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
     if(wireConfig['type'] == 'vowel'):

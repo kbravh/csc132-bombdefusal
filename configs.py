@@ -176,3 +176,21 @@ console_full_text = "system boot\
                 \nBootup successful; process initializing...\
                 \ntime left: {}:{}:{}\
                 \nfatal_strikes = 3 => : {}"
+
+explosion = [
+    "              GAME OVER",
+    "",
+    "",
+    "",
+    "          _.-^^---....,,--._     ",
+    "      _--                  --_  ",
+    "     <                        >)",
+    "     |                         | ",
+    "      \._                   _./  ",
+    "         ```--. . , ; .--'''       ",
+    "               | |   |             ",
+    "            .-=||  | |=-.   ",
+    "            `-=#$%&%$#=-'   ",
+    "               | ;  :|     ",
+    "      _____.,-#%&$@%#&#~,._____"
+]
