@@ -43,11 +43,19 @@ class mainGUI(Frame):
         self.setupGUI()
 
     def setupGUI(self):
+        self.pack(fill=BOTH, expand=1)
+        #bomb berries
+        mainGUI.image = Label(self, width=600, image=None)
+        mainGUI.image.image = None
+        mainGUI.image.config(highlightbackground="black", highlightthickness=0, bd=0)
+        mainGUI.image.pack(side=TOP, fill=Y)
+        mainGUI.image.pack_propagate(False)
+
         console_frame = Frame(self)
         mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
+        mainGUI.console.config(highlightbackground="black", highlightthickness=0, bd=0)
         mainGUI.console.pack(fill=Y, expand=1)
         console_frame.pack(side=LEFT, fill=Y)
-        self.pack(fill=BOTH, expand=1)
 
 
 
@@ -144,6 +152,13 @@ class Bomb(object):
             self.win()
 
     def startBomb(self):
+        #do initial screen output
+        pibombs = PhotoImage(file="img/pibombs.gif")
+        mainGUI.image.config(image=pibombs)
+        mainGUI.image.image = pibombs
+        bombWindow.update()
+        time.sleep(1)
+
         #stores the time that the bomb started 
         self.startTime = datetime.datetime.now()
         #start the game
@@ -159,8 +174,27 @@ class Bomb(object):
 
     def explode(self):
         print ("BOOM!")
+        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, \
+            "     _.-^^---....,,--       \
+            \n _--                  --_  \
+            \n<                        >)\
+            \n|                         | \
+            \n \._                   _./  \
+            \n    ```--. . , ; .--'''       \
+            \n          | |   |             \
+            \n       .-=||  | |=-.   \
+            \n       `-=#$%&%$#=-'   \
+            \n          | ;  :|     \
+            \n _____.,-#%&$@%#&#~,._____")
+        mainGUI.console.config(state=DISABLED)
+        bombWindow.update_idletasks()
+        bombWindow.update()
         while(True):
-            #TODO - Add tkinter updates here so that restart button works
+            #TODO - Add restart button that calls gameSetup()
+            bombWindow.update_idletasks()
+            bombWindow.update()
             if raspberryPi:
             #flash the timer on and off
                 segment.set_digit(0, 0)
@@ -182,7 +216,10 @@ class Bomb(object):
         minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
 
         while(True):
-            #TODO - Add tkinter updates here so that restart button works
+            #TODO - Add restart button that calls gameSetup()
+            bombWindow.update_idletasks()
+            bombWindow.update()
+
             if raspberryPi:
 
                 #flash the timer on and off with winning time
@@ -442,6 +479,9 @@ def gameSetup():
     module2 = Keypad(1, keypadConfig)
     module3 = BigButton(2, buttonConfig)
 
+    #kick off the gameplay once the bomb has been setup
+    bomb.startBomb()
+
 def getTimeLeft():
     #this is the time right now
     currentTime = datetime.datetime.now()
@@ -462,7 +502,6 @@ def splitTimeLeft(timeLeft):
     return minutes, seconds, hundSecs
 
 #runs the gameplay
-#this is triggered by the "Start" button
 def playGame():
     while(True):
 
@@ -518,6 +557,5 @@ def playGame():
         time.sleep(0.05)
 
 
+#this is triggered by the "Start" button
 gameSetup()
-
-bomb.startBomb()
