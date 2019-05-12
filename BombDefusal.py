@@ -158,6 +158,15 @@ class Bomb(object):
         mainGUI.image.image = pibombs
         bombWindow.update()
         time.sleep(1)
+        console_text = ""
+        for text in configs.console_texts:
+            console_text += text
+            mainGUI.console.config(state=NORMAL)
+            mainGUI.console.delete("1.0", END)
+            mainGUI.console.insert(END, console_text)
+            mainGUI.console.config(state=DISABLED)
+            bombWindow.update()
+            time.sleep(random.uniform(.3, 1.2))
 
         #stores the time that the bomb started 
         self.startTime = datetime.datetime.now()
@@ -174,6 +183,8 @@ class Bomb(object):
 
     def explode(self):
         print ("BOOM!")
+        mainGUI.image.config(image="")
+        mainGUI.image.image = ""
         mainGUI.console.config(state=NORMAL)
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, \
