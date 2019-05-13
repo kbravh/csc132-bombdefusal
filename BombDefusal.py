@@ -487,9 +487,9 @@ def writeToClock(minutes, seconds, hundSecs):
 
 def mainMenu():
     #show main menu "image"
-    mainGUI.console.config(state=NORMAL, font="fixedsys 10")
+    mainGUI.console.config(state=NORMAL, font="fixedsys 15")
     mainGUI.console.delete("1.0", END)
-    mainGUI.console.insert(END, "Defuse This Bomb")
+    mainGUI.console.insert(END, configs.bomb)
     mainGUI.console.config(state=DISABLED)
     #hide the bomb berries
     mainGUI.image.config(image="")
