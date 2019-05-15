@@ -10,6 +10,8 @@ raspberryPi = False
 
 #Abstraction
 import abc
+import random
+from tkinter import *
 #GPIO
 import RPi.GPIO as GPIO
 #Keypad
@@ -22,32 +24,53 @@ import datetime
 from Adafruit_LED_Backpack import SevenSegment
 #Buzzer
 import pygame
+
+import configs
 ######################################################
 #the pins used for the Cut The Wires module
 wirePin1 = 4
 wirePin2 = 5
 wirePin3 = 6
+#the pins for the button
+redPin = 12
+greenPin = 13
+bluePin = 16
+buttonPin = 17
 
-#create 3 basic wires for default mission setting
-wire1 = {'pin': wirePin1}
-wire2 = {'pin': wirePin2}
-wire3 = {'pin': wirePin3}
+class mainGUI(Frame):
+    def __init__(self, parent):
+        Frame.__init__(self, parent, bg="black")
+        if(raspberryPi):
+            parent.attributes("-fullscreen", True)
+        self.setupGUI()
 
-#the basic wire setup for Cut The Wires
-defaultWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire1],
-    'wiresToLeave' : [wire2, wire3]
-}
-secondWireConfig = {
-    'wire1' : wire1,
-    'wire2' : wire2,
-    'wire3' : wire3,
-    'wiresToSolve' : [wire2, wire3],
-    'wiresToLeave' : [wire1]
-}
+    def setupGUI(self):
+        self.pack(fill=BOTH, expand=1)
+        #bomb berries
+        mainGUI.image = Label(self, width=600, image=None, bg="black")
+        mainGUI.image.image = None
+        mainGUI.image.config(highlightbackground="black", highlightthickness=0, bd=0)
+        mainGUI.image.pack(side=TOP, fill=Y)
+        mainGUI.image.pack_propagate(False)
+
+        mainGUI.reset = Button(self, bg="black", fg="white", text="Start", bd=0,
+            borderwidth=0, highlightthickness=0, activebackground="black",
+            command=lambda: gameSetup(), font="fixedsys 20")
+        mainGUI.reset.pack(side=BOTTOM, fill=Y)
+
+        console_frame = Frame(self)
+        mainGUI.console = Text(console_frame, bg="black", fg="white", state=DISABLED)
+        mainGUI.console.config(highlightbackground="black", highlightthickness=0, bd=0)
+        mainGUI.console.pack(fill=Y, expand=1)
+        console_frame.pack(side=LEFT, fill=Y)
+
+
+
+###Set up the GUI###
+bombWindow = Tk()
+bombWindow.title("Keep Talking and Nobody Explodes!")
+bombWindow.geometry("600x800")
+b = mainGUI(bombWindow)
 
 if raspberryPi:
     #Setup for the keypad
@@ -60,23 +83,25 @@ if raspberryPi:
 
     keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
 
-#basic object for keypad module
-defaultKeypadConfig = {
-    'word' : "HELLO",
-    "hint" : "YORE",
-    'sequence' : "43556"
-}
-
 pygame.init()
 pygame.mixer.music.load('sound/buzzer.mp3')
 
 if raspberryPi:
     # use the broadcom pin layout
-    GPIO.setmode(GPIO.BCM) 
+    GPIO.setmode(GPIO.BCM)
     #set wire pins to pulldown inputs
     GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin3, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #set button input pin to pulldown
+    GPIO.setup(buttonPin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+    #as the RGB LED is common anode, we'll default the pins high
+    GPIO.setup(redPin, GPIO.OUT)
+    GPIO.setup(greenPin, GPIO.OUT)
+    GPIO.setup(bluePin, GPIO.OUT)
+    GPIO.output(redPin, GPIO.HIGH)
+    GPIO.output(greenPin, GPIO.HIGH)
+    GPIO.output(bluePin, GPIO.HIGH)
 
     segment = SevenSegment.SevenSegment(address=0x70)
 
@@ -100,6 +125,9 @@ class Bomb(object):
         self.timer = timer
         self.strikes = 0
         self.modules = [0,0,0]
+        self.serialNumber = ""
+        self.keyword = ""
+        self.console = configs.console_full_text
 
     @property
     def timer(self):
@@ -120,7 +148,7 @@ class Bomb(object):
     @strikes.setter
     def strikes(self, strikes):
         self._strikes = strikes
-        
+
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
             self.explode()
@@ -135,7 +163,40 @@ class Bomb(object):
             self.win()
 
     def startBomb(self):
-        #stores the time that the bomb started 
+        #set timer to dashes
+        if raspberryPi:
+            #flash the timer on and off
+            segment.set_digit(0, "-")
+            segment.set_digit(1, "-")
+            segment.set_digit(2, "-")
+            segment.set_digit(3, "-")
+            segment.set_colon(True)
+            segment.write_display()
+        #hide reset button
+        mainGUI.reset.config(fg="black", command=lambda: mainMenu())
+        #add initial raspbombs
+        pibombs = PhotoImage(file="img/pibombs.gif")
+        mainGUI.image.config(image=pibombs)
+        mainGUI.image.image = pibombs
+        #wipe bomb image
+        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "")
+        mainGUI.console.config(state=DISABLED, font="fixedsys 12")
+        bombWindow.update()
+        time.sleep(1)
+        #loop through bootup text and add line by line
+        console_text = ""
+        for text in configs.console_texts:
+            console_text += text
+            mainGUI.console.config(state=NORMAL)
+            mainGUI.console.delete("1.0", END)
+            mainGUI.console.insert(END, console_text)
+            mainGUI.console.config(state=DISABLED, font="fixedsys 12")
+            bombWindow.update()
+            time.sleep(random.uniform(.3, 1.2))
+
+        #stores the time that the bomb started
         self.startTime = datetime.datetime.now()
         #start the game
         playGame()
@@ -150,8 +211,28 @@ class Bomb(object):
 
     def explode(self):
         print ("BOOM!")
+        #hide the bomb berries
+        mainGUI.image.config(image="")
+        mainGUI.image.image = ""
+        #change button to "retry"
+        mainGUI.reset.config(text="Retry?")
+        #create an array of empty strings
+        explosion_text = ["" for var in range(len(configs.explosion))]
+        #for each line of the explosion, replace from the bottom up
+        for line in range(len(explosion_text)-1, -1, -1):
+            explosion_text[line] = configs.explosion[line]
+            mainGUI.console.config(state=NORMAL, font="fixedsys 20")
+            mainGUI.console.delete("1.0", END)
+            mainGUI.console.insert(END, "\n\n\n"+"\n".join(explosion_text))
+            mainGUI.console.config(state=DISABLED)
+            bombWindow.update_idletasks()
+            bombWindow.update()
+            time.sleep(0.1)
+
+        mainGUI.reset.config(fg="white")
         while(True):
-            #TODO - Add tkinter updates here so that restart button works
+            bombWindow.update_idletasks()
+            bombWindow.update()
             if raspberryPi:
             #flash the timer on and off
                 segment.set_digit(0, 0)
@@ -168,12 +249,28 @@ class Bomb(object):
 
     def win(self):
         print ("You win!")
+        #print YOU WIN on the screen
+        mainGUI.console.config(state=NORMAL, font="fixedsys 50")
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "\n\n\n      YOU\n\n      WIN")
+        mainGUI.console.config(state=DISABLED)
+        #hide the bomb berries
+        mainGUI.image.config(image="")
+        mainGUI.image.image = ""
+        #change button to "retry"
+        mainGUI.reset.config(text="Play Again?", fg="white")
+
+        bombWindow.update_idletasks()
+        bombWindow.update()
+
         #get the time left when module solved and split it
         timeLeft = getTimeLeft()
         minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
 
         while(True):
-            #TODO - Add tkinter updates here so that restart button works
+            bombWindow.update_idletasks()
+            bombWindow.update()
+
             if raspberryPi:
 
                 #flash the timer on and off with winning time
@@ -193,6 +290,8 @@ class Module(object):
         self.modNumber = modNumber
         #This is a reference to the main bomb instance, the owner of this module
         self.bomb = bomb
+        #this is the module's name
+        self.name = ""
         #whether or not the module is solved
         self.solved = False
 
@@ -216,13 +315,22 @@ class Module(object):
     def strike(self):
         pygame.mixer.music.play(0)
         self.bomb.strikes += 1
-        print("got a strike!")
+        print("Got a strike!")
+        mainGUI.console.config(state=NORMAL, bg="red", fg="black", font="fixedsys 50")
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "\n\n\n\n    STRIKE")
+        mainGUI.console.config(state=DISABLED)
+        bombWindow.update()
+        bombWindow.update_idletasks()
+        time.sleep(0.1)
 
     #let the bomb know that this module is complete
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
         self.solved = True
-        print("module solved!")
+        print("{} module solved!".format(self.name))
+        #add a "module deactivated" error to the console screen
+        bomb.console += "\n\n*ERROR*: {}-module.state = DEACTIVATED".format(self.name)
 
     #abstract method to determine if a module is complete
     #each module type will need to define this
@@ -231,8 +339,9 @@ class Module(object):
         """This determines the solved state of a module"""
 
 class CutTheWires(Module):
-    def __init__(self, modNumber, wireConfig = defaultWireConfig):
+    def __init__(self, modNumber, wireConfig = configs.defaultWireConfig):
         Module.__init__(self, modNumber)
+        self.name = "wires"
         self.wire1 = wireConfig['wire1']
         self.wire2 = wireConfig['wire2']
         self.wire3 = wireConfig['wire3']
@@ -269,10 +378,11 @@ class CutTheWires(Module):
                 self.solve()
 
 class Keypad(Module):
-    def __init__(self, modNumber, keypadConfig = defaultKeypadConfig):
+    def __init__(self, modNumber, keypadConfig = configs.defaultKeypadConfig):
         Module.__init__(self, modNumber)
+        self.name = "keypad"
         self.word = keypadConfig["word"]
-        self.hint = keypadConfig["hint"]
+        bomb.keyword = keypadConfig["hint"]
         self.sequence = keypadConfig["sequence"]
         self.typedNumbers = ""
         self.lastPressed = datetime.datetime.now()
@@ -307,11 +417,71 @@ class Keypad(Module):
 
 
 class BigButton(Module):
-    def __init__(self, modNumber):
+    def __init__(self, modNumber, buttonConfig = configs.defaultButtonConfig):
         Module.__init__(self, modNumber)
+        self.name = "button"
+        self.color = buttonConfig["color"]
+        self.wasPressed = False
+        self.releaseOk = False
 
     def checkModule(self):
-        pass
+        if(not self.solved):
+            if(self.wasPressed):
+                if(self.color == 'red'):
+                    print("red is on")
+                    GPIO.output(redPin, GPIO.LOW)
+                elif(self.color == 'green'):
+                    print("green is on")
+                    GPIO.output(greenPin, GPIO.LOW)
+                elif(self.color == 'blue'):
+                    print("blue is on")
+                    GPIO.output(bluePin, GPIO.LOW)
+            #if the button is initially pressed
+            if(GPIO.input(buttonPin) and not self.wasPressed):
+                print("Button has been pressed!")
+                self.wasPressed = True
+
+            #if the button has been let go
+            elif(not GPIO.input(buttonPin) and self.wasPressed):
+                print("button has been let go")
+                #turn off all colors
+                GPIO.output(redPin, GPIO.HIGH)
+                GPIO.output(greenPin, GPIO.HIGH)
+                GPIO.output(bluePin, GPIO.HIGH)
+
+                #check for numbers in timer based on the color
+                if(self.color == "red"):
+                    self.releaseOk = self.checkTimer("1", "4")
+                elif(self.color == "green"):
+                    self.releaseOk = self.checkTimer("2", "5")
+                elif(self.color == "blue"):
+                    self.releaseOk = self.checkTimer("3", "6")
+
+                #if it was a good release
+                if(self.releaseOk):
+                    self.solve()
+                else:
+                    self.strike()
+
+                #reset the button state
+                self.wasPressed = False
+
+    #check time on clock to see if good button release
+    def checkTimer(self, number1, number2):
+        #get the amount of time left
+        timeLeft = getTimeLeft()
+        minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
+        minutes = str(minutes)
+        seconds = str(seconds)
+        hundSecs = str(hundSecs)
+        #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
+        if(timeLeft > 60):
+            if(number1 in minutes+seconds or number2 in minutes+seconds):
+                    return True
+        else:
+            if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
+                return True
+        return False
 
 ###################
 ###OTHER METHODS###
@@ -319,7 +489,7 @@ class BigButton(Module):
 
 #this method writes the remaining time to the screen
 def writeToClock(minutes, seconds, hundSecs):
-    segment.clear()    
+    segment.clear()
 
     # show minutes and seconds on the clock
     if(minutes > 0):
@@ -350,17 +520,50 @@ def writeToClock(minutes, seconds, hundSecs):
     # update the actual display LEDs.
     segment.write_display()
 
+def mainMenu():
+    #show main menu "image"
+    mainGUI.console.config(state=NORMAL, font="fixedsys 15")
+    mainGUI.console.delete("1.0", END)
+    mainGUI.console.insert(END, configs.bomb)
+    mainGUI.console.config(state=DISABLED)
+    #hide the bomb berries
+    mainGUI.image.config(image="")
+    mainGUI.image.image = ""
+    #show the start button
+    mainGUI.reset.config(command=lambda: gameSetup(), text="Start", fg="white")
+
+    while(True):
+        bombWindow.update_idletasks()
+        bombWindow.update()
+
 #this method initializes the bomb
-#this is triggered by "New Game" or "Try Again" button
+#this is triggered by "Start" or "Retry" button
 ''' this could be extended to support multiple levels/configs
     based on parameters passed in'''
 def gameSetup():
     global bomb
     global module1, module2, module3
-    bomb = Bomb(120)
-    module1 = CutTheWires(0)
-    module2 = Keypad(1)
-    module3 = BigButton(2)
+
+    bomb = Bomb(10)
+
+    wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
+    if(wireConfig['type'] == 'vowel'):
+        bomb.serialNumber = configs.vowelSerialNumbers[random.randint(0,len(configs.vowelSerialNumbers)-1)]
+    elif(wireConfig['type'] == 'odd'):
+        bomb.serialNumber = configs.oddSerialNumbers[random.randint(0,len(configs.oddSerialNumbers)-1)]
+    else:
+        bomb.serialNumber = configs.evenSerialNumbers[random.randint(0,len(configs.evenSerialNumbers)-1)]
+
+    keypadConfig = configs.keypadConfigs[random.randint(0, len(configs.keypadConfigs)-1)]
+
+    buttonConfig = configs.buttonColors[random.randint(0, len(configs.buttonColors)-1)]
+
+    module1 = CutTheWires(0, wireConfig)
+    module2 = Keypad(1, keypadConfig)
+    module3 = BigButton(2, buttonConfig)
+
+    #kick off the gameplay once the bomb has been setup
+    bomb.startBomb()
 
 def getTimeLeft():
     #this is the time right now
@@ -376,21 +579,21 @@ def splitTimeLeft(timeLeft):
     minutes = int(timeLeft/60)
     timeLeft -= minutes*60
     seconds = int(timeLeft/1)
-    #get just the microseconds, round to two places, strip off the 
+    #get just the microseconds, round to two places, strip off the
     #leading zero and the decimal point
     hundSecs = str(round(timeLeft%1, 2))[2:4]
     return minutes, seconds, hundSecs
 
 #runs the gameplay
-#this is triggered by the "Start" button
 def playGame():
     while(True):
+
         ###STRIKE SPEEDING UP TIMER###
         if (bomb.strikes == 1):
             bomb.timer = bomb.timer - 0.025
         elif (bomb.strikes == 2):
             bomb.timer = bomb.timer - 0.05
-        
+
         ###TIMER###
         timeLeft = getTimeLeft()
         #split up the time left
@@ -411,10 +614,17 @@ def playGame():
         #check the state of each module
         module1.checkModule()
         module2.checkModule()
+        module3.checkModule()
 
+        mainGUI.console.config(state=NORMAL, bg="black", fg="white", font="fixedsys 12")
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, bomb.console
+            .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
+        mainGUI.console.config(state=DISABLED)
+
+
+        bombWindow.update_idletasks()
+        bombWindow.update()
         time.sleep(0.05)
 
-
-gameSetup()
-
-bomb.startBomb()
+mainMenu()
