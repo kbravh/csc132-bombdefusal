@@ -309,6 +309,13 @@ class Module(object):
     def strike(self):
         self.bomb.strikes += 1
         print("Got a strike!")
+        mainGUI.console.config(state=NORMAL, bg="red", fg="black", font="fixedsys 50")
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "\n\n\n\n    STRIKE")
+        mainGUI.console.config(state=DISABLED)
+        bombWindow.update()
+        bombWindow.update_idletasks()
+        time.sleep(0.1)
 
     #let the bomb know that this module is complete
     def solve(self):
@@ -602,7 +609,7 @@ def playGame():
         module2.checkModule()
         module3.checkModule()
 
-        mainGUI.console.config(state=NORMAL)
+        mainGUI.console.config(state=NORMAL, bg="black", fg="white", font="fixedsys 12")
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, configs.console_full_text
             .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
