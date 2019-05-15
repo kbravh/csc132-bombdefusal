@@ -22,6 +22,8 @@ import adafruit_matrixkeypad
 import time
 import datetime
 from Adafruit_LED_Backpack import SevenSegment
+#Buzzer
+import pygame
 
 import configs
 ######################################################
@@ -81,6 +83,9 @@ if raspberryPi:
 
     keypad = adafruit_matrixkeypad.Matrix_Keypad(rows, cols, keys)
 
+pygame.init()
+pygame.mixer.music.load('sound/buzzer.mp3')
+
 if raspberryPi:
     # use the broadcom pin layout
     GPIO.setmode(GPIO.BCM)
@@ -122,6 +127,7 @@ class Bomb(object):
         self.modules = [0,0,0]
         self.serialNumber = ""
         self.keyword = ""
+        self.console = configs.console_full_text
 
     @property
     def timer(self):
@@ -307,6 +313,7 @@ class Module(object):
 
     #add a strike to the main bomb instance
     def strike(self):
+        pygame.mixer.music.play(0)
         self.bomb.strikes += 1
         print("Got a strike!")
         mainGUI.console.config(state=NORMAL, bg="red", fg="black", font="fixedsys 50")
@@ -323,7 +330,7 @@ class Module(object):
         self.solved = True
         print("{} module solved!".format(self.name))
         #add a "module deactivated" error to the console screen
-        configs.console_full_text += "\n\n*ERROR*: {}-module.state = DEACTIVATED".format(self.name)
+        bomb.console += "\n\n*ERROR*: {}-module.state = DEACTIVATED".format(self.name)
 
     #abstract method to determine if a module is complete
     #each module type will need to define this
@@ -611,7 +618,7 @@ def playGame():
 
         mainGUI.console.config(state=NORMAL, bg="black", fg="white", font="fixedsys 12")
         mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, configs.console_full_text
+        mainGUI.console.insert(END, bomb.console
             .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
         mainGUI.console.config(state=DISABLED)
 
