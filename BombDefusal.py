@@ -83,7 +83,7 @@ if raspberryPi:
 
 if raspberryPi:
     # use the broadcom pin layout
-    GPIO.setmode(GPIO.BCM) 
+    GPIO.setmode(GPIO.BCM)
     #set wire pins to pulldown inputs
     GPIO.setup(wirePin1, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
     GPIO.setup(wirePin2, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -142,7 +142,7 @@ class Bomb(object):
     @strikes.setter
     def strikes(self, strikes):
         self._strikes = strikes
-        
+
         #if the bomb has reached 3 strikes, game over
         if (self._strikes >= 3):
             self.explode()
@@ -190,7 +190,7 @@ class Bomb(object):
             bombWindow.update()
             time.sleep(random.uniform(.3, 1.2))
 
-        #stores the time that the bomb started 
+        #stores the time that the bomb started
         self.startTime = datetime.datetime.now()
         #start the game
         playGame()
@@ -243,12 +243,13 @@ class Bomb(object):
 
     def win(self):
         print ("You win!")
+        #TODO - Add You win to the screen
         #get the time left when module solved and split it
         timeLeft = getTimeLeft()
         minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
 
         while(True):
-            #TODO - Add restart button that calls gameSetup()
+            #TODO - change button to say Play Again and white fg
             bombWindow.update_idletasks()
             bombWindow.update()
 
@@ -271,6 +272,8 @@ class Module(object):
         self.modNumber = modNumber
         #This is a reference to the main bomb instance, the owner of this module
         self.bomb = bomb
+        #this is the module's name
+        self.name = ""
         #whether or not the module is solved
         self.solved = False
 
@@ -299,7 +302,10 @@ class Module(object):
     def solve(self):
         self.bomb.moduleComplete(self.modNumber)
         self.solved = True
-        print("Module solved!")
+        print("{} module solved!".format(self.name))
+        #add a "module deactivated" error to the console screen
+        configs.console_full_text += "\n\n*ERROR*: {}-module.state = DEACTIVATED".format(self.name)
+
     #abstract method to determine if a module is complete
     #each module type will need to define this
     @abc.abstractmethod
@@ -309,6 +315,7 @@ class Module(object):
 class CutTheWires(Module):
     def __init__(self, modNumber, wireConfig = configs.defaultWireConfig):
         Module.__init__(self, modNumber)
+        self.name = "wires"
         self.wire1 = wireConfig['wire1']
         self.wire2 = wireConfig['wire2']
         self.wire3 = wireConfig['wire3']
@@ -347,6 +354,7 @@ class CutTheWires(Module):
 class Keypad(Module):
     def __init__(self, modNumber, keypadConfig = configs.defaultKeypadConfig):
         Module.__init__(self, modNumber)
+        self.name = "keypad"
         self.word = keypadConfig["word"]
         bomb.keyword = keypadConfig["hint"]
         self.sequence = keypadConfig["sequence"]
@@ -385,6 +393,7 @@ class Keypad(Module):
 class BigButton(Module):
     def __init__(self, modNumber, buttonConfig = configs.defaultButtonConfig):
         Module.__init__(self, modNumber)
+        self.name = "button"
         self.color = buttonConfig["color"]
         self.wasPressed = False
         self.releaseOk = False
@@ -430,7 +439,7 @@ class BigButton(Module):
 
                 #reset the button state
                 self.wasPressed = False
-        
+
     #check time on clock to see if good button release
     def checkTimer(self, number1, number2):
         #get the amount of time left
@@ -443,7 +452,7 @@ class BigButton(Module):
         if(timeLeft > 60):
             if(number1 in minutes+seconds or number2 in minutes+seconds):
                     return True
-        else: 
+        else:
             if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
                 return True
         return False
@@ -454,7 +463,7 @@ class BigButton(Module):
 
 #this method writes the remaining time to the screen
 def writeToClock(minutes, seconds, hundSecs):
-    segment.clear()    
+    segment.clear()
 
     # show minutes and seconds on the clock
     if(minutes > 0):
@@ -544,7 +553,7 @@ def splitTimeLeft(timeLeft):
     minutes = int(timeLeft/60)
     timeLeft -= minutes*60
     seconds = int(timeLeft/1)
-    #get just the microseconds, round to two places, strip off the 
+    #get just the microseconds, round to two places, strip off the
     #leading zero and the decimal point
     hundSecs = str(round(timeLeft%1, 2))[2:4]
     return minutes, seconds, hundSecs
@@ -558,7 +567,7 @@ def playGame():
             bomb.timer = bomb.timer - 0.025
         elif (bomb.strikes == 2):
             bomb.timer = bomb.timer - 0.05
-        
+
         ###TIMER###
         timeLeft = getTimeLeft()
         #split up the time left
