@@ -243,13 +243,25 @@ class Bomb(object):
 
     def win(self):
         print ("You win!")
-        #TODO - Add You win to the screen
+        #print YOU WIN on the screen
+        mainGUI.console.config(state=NORMAL, font="fixedsys 50")
+        mainGUI.console.delete("1.0", END)
+        mainGUI.console.insert(END, "\n\n\n      YOU\n\n      WIN")
+        mainGUI.console.config(state=DISABLED)
+        #hide the bomb berries
+        mainGUI.image.config(image="")
+        mainGUI.image.image = ""
+        #change button to "retry"
+        mainGUI.reset.config(text="Play Again?", fg="white")
+
+        bombWindow.update_idletasks()
+        bombWindow.update()
+
         #get the time left when module solved and split it
         timeLeft = getTimeLeft()
         minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
 
         while(True):
-            #TODO - change button to say Play Again and white fg
             bombWindow.update_idletasks()
             bombWindow.update()
 
