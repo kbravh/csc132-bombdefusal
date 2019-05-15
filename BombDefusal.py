@@ -436,6 +436,10 @@ class BigButton(Module):
                 elif(self.color == 'blue'):
                     print("blue is on")
                     GPIO.output(bluePin, GPIO.LOW)
+                elif(self.color == 'purple'):
+                    print("purple is on")
+                    GPIO.output(redPin, GPIO.LOW)
+                    GPIO.output(bluePin, GPIO.LOW)
             #if the button is initially pressed
             if(GPIO.input(buttonPin) and not self.wasPressed):
                 print("Button has been pressed!")
@@ -456,6 +460,8 @@ class BigButton(Module):
                     self.releaseOk = self.checkTimer("2", "5")
                 elif(self.color == "blue"):
                     self.releaseOk = self.checkTimer("3", "6")
+                elif(self.color == "purple"):
+                    self.releaseOk = self.checkTimer("0", "9")
 
                 #if it was a good release
                 if(self.releaseOk):

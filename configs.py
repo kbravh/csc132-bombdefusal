@@ -38,7 +38,7 @@ wireConfigs = [
 ]
 
 #the basic wire setup for Cut The Wires
-defaultWireConfig = wireConfigs.wireConfigVowel
+defaultWireConfig = wireConfigs[1]
 
 vowelSerialNumbers = [
     'XJD45E23',
@@ -171,7 +171,8 @@ defaultButtonConfig = {
 buttonColors = [
     {'color': 'red'},
     {'color': 'green'},
-    {'color': 'blue'}
+    {'color': 'blue'},
+    {'color': 'purple'}
 ]
 
 console_texts = [
