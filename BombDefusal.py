@@ -6,7 +6,7 @@
 ######################################################
 """Whether or not running on a raspberryPi, if false
     will disable the Pi specific functionality for testing"""
-raspberryPi = False
+raspberryPi = True
 
 #Abstraction
 import abc
@@ -221,7 +221,7 @@ class Bomb(object):
         #for each line of the explosion, replace from the bottom up
         for line in range(len(explosion_text)-1, -1, -1):
             explosion_text[line] = configs.explosion[line]
-            mainGUI.console.config(state=NORMAL, font="fixedsys 20")
+            mainGUI.console.config(state=NORMAL, font="fixedsys 14")
             mainGUI.console.delete("1.0", END)
             mainGUI.console.insert(END, "\n\n\n"+"\n".join(explosion_text))
             mainGUI.console.config(state=DISABLED)
@@ -252,7 +252,7 @@ class Bomb(object):
         #print YOU WIN on the screen
         mainGUI.console.config(state=NORMAL, font="fixedsys 50")
         mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, "\n\n\n      YOU\n\n      WIN")
+        mainGUI.console.insert(END, "\n\n\n       YOU\n\n       WIN")
         mainGUI.console.config(state=DISABLED)
         #hide the bomb berries
         mainGUI.image.config(image="")
@@ -528,7 +528,7 @@ def writeToClock(minutes, seconds, hundSecs):
 
 def mainMenu():
     #show main menu "image"
-    mainGUI.console.config(state=NORMAL, font="fixedsys 15")
+    mainGUI.console.config(state=NORMAL, font=("Free Mono", 14))
     mainGUI.console.delete("1.0", END)
     mainGUI.console.insert(END, configs.bomb)
     mainGUI.console.config(state=DISABLED)
@@ -550,7 +550,7 @@ def gameSetup():
     global bomb
     global module1, module2, module3
 
-    bomb = Bomb(10)
+    bomb = Bomb(120)
 
     wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
     if(wireConfig['type'] == 'vowel'):
