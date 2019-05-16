@@ -477,9 +477,9 @@ class BigButton(Module):
         #get the amount of time left
         timeLeft = getTimeLeft()
         minutes, seconds, hundSecs = splitTimeLeft(timeLeft)
-        minutes = str(minutes)
-        seconds = str(seconds)
-        hundSecs = str(hundSecs)
+        minutes = str(minutes) if minutes >= 10 else "0"+str(minutes)
+        seconds = str(seconds) if seconds >= 10 else "0"+str(seconds)
+        hundSecs = str(hundSecs) if hundSecs >= 10 else "0"+str(hundSecs)
         #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
         if(timeLeft > 60):
             if(number1 in minutes+seconds or number2 in minutes+seconds):
