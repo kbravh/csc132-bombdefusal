@@ -55,7 +55,7 @@ class mainGUI(Frame):
 
         mainGUI.reset = Button(self, bg="black", fg="white", text="Start", bd=0,
             borderwidth=0, highlightthickness=0, activebackground="black",
-            command=lambda: gameSetup(), font="fixedsys 20")
+            command=lambda: gameSetup(), font=("Free Mono",20))
         mainGUI.reset.pack(side=BOTTOM, fill=Y)
 
         console_frame = Frame(self)
@@ -182,7 +182,7 @@ class Bomb(object):
         mainGUI.console.config(state=NORMAL)
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, "")
-        mainGUI.console.config(state=DISABLED, font="fixedsys 12")
+        mainGUI.console.config(state=DISABLED, font=("Free Mono", 12))
         bombWindow.update()
         time.sleep(1)
         #loop through bootup text and add line by line
@@ -192,7 +192,7 @@ class Bomb(object):
             mainGUI.console.config(state=NORMAL)
             mainGUI.console.delete("1.0", END)
             mainGUI.console.insert(END, console_text)
-            mainGUI.console.config(state=DISABLED, font="fixedsys 12")
+            mainGUI.console.config(state=DISABLED, font=("Free Mono", 12))
             bombWindow.update()
             time.sleep(random.uniform(.3, 1.2))
 
@@ -221,7 +221,7 @@ class Bomb(object):
         #for each line of the explosion, replace from the bottom up
         for line in range(len(explosion_text)-1, -1, -1):
             explosion_text[line] = configs.explosion[line]
-            mainGUI.console.config(state=NORMAL, font="fixedsys 14")
+            mainGUI.console.config(state=NORMAL, font=("Free Mono", 14))
             mainGUI.console.delete("1.0", END)
             mainGUI.console.insert(END, "\n\n\n"+"\n".join(explosion_text))
             mainGUI.console.config(state=DISABLED)
@@ -250,9 +250,9 @@ class Bomb(object):
     def win(self):
         print ("You win!")
         #print YOU WIN on the screen
-        mainGUI.console.config(state=NORMAL, font="fixedsys 50")
+        mainGUI.console.config(state=NORMAL, font=("Free Mono", 50))
         mainGUI.console.delete("1.0", END)
-        mainGUI.console.insert(END, "\n\n\n       YOU\n\n       WIN")
+        mainGUI.console.insert(END, "\n\n\n    YOU\n\n    WIN")
         mainGUI.console.config(state=DISABLED)
         #hide the bomb berries
         mainGUI.image.config(image="")
@@ -316,7 +316,7 @@ class Module(object):
         pygame.mixer.music.play(0)
         self.bomb.strikes += 1
         print("Got a strike!")
-        mainGUI.console.config(state=NORMAL, bg="red", fg="black", font="fixedsys 50")
+        mainGUI.console.config(state=NORMAL, bg="red", fg="black", font=("Free Mono", 50))
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, "\n\n\n\n    STRIKE")
         mainGUI.console.config(state=DISABLED)
@@ -622,7 +622,7 @@ def playGame():
         module2.checkModule()
         module3.checkModule()
 
-        mainGUI.console.config(state=NORMAL, bg="black", fg="white", font="fixedsys 12")
+        mainGUI.console.config(state=NORMAL, bg="black", fg="white", font=("Free Mono", 12))
         mainGUI.console.delete("1.0", END)
         mainGUI.console.insert(END, bomb.console
             .format(bomb.serialNumber, bomb.keyword, minutes, seconds, hundSecs, "X"*bomb.strikes))
