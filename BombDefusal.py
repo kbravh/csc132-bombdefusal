@@ -483,7 +483,7 @@ class BigButton(Module):
         #we only want to check for visible numbers, so hundSecs won't be used > 60 secs left
         if(timeLeft > 60):
             if(number1 in minutes+seconds or number2 in minutes+seconds):
-                    return True
+                return True
         else:
             if(number1 in seconds+hundSecs or number2 in seconds+hundSecs):
                 return True
