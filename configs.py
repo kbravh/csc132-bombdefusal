@@ -77,7 +77,7 @@ keypadConfigs = [
     {
         'word' : "JANKY",
         "hint" : "KNEW",
-        'sequence' : "51659"
+        'sequence' : "52659"
     },
     {
         'word' : "MEMES",
