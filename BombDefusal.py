@@ -550,7 +550,7 @@ def gameSetup():
     global bomb
     global module1, module2, module3
 
-    bomb = Bomb(120)
+    bomb = Bomb(60)
 
     wireConfig = configs.wireConfigs[random.randint(0,len(configs.wireConfigs)-1)]
     if(wireConfig['type'] == 'vowel'):
