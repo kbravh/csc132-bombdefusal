@@ -588,7 +588,7 @@ def splitTimeLeft(timeLeft):
     #get just the microseconds, round to two places, strip off the
     #leading zero and the decimal point
     hundSecs = str(round(timeLeft%1, 2))[2:4]
-    return minutes, seconds, hundSecs
+    return int(minutes), int(seconds), int(hundSecs)
 
 #runs the gameplay
 def playGame():
