@@ -22,7 +22,10 @@ In order to run the program, some dependencies will need to be installed.
 `sudo python setup.py install`
 
 ### For the keypad
-`sudo pip3 install adafruit-circuitpython-matrixkeypad`
+`sudo pip install adafruit-circuitpython-matrixkeypad`
+
+### For the strike buzzer
+`sudo pip install pygame` 
 
 ## Note: In order to run the program on a computer for testing, make the following changes:
 * Copy the folder RPi from the project dependencies directory to your Python installation directory.
