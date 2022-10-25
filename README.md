@@ -7,6 +7,8 @@ Fritzing wiring diagrams are included in the /diagrams directory.
 
 Manual pages for the Expert are in the /manual directory.
 
+See it in action: https://youtu.be/AcDnd6UVbhQ
+
 ## Getting started
 In order to run the program, some dependencies will need to be installed.
 
